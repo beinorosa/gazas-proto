@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sportininkas — Gazas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Schibsted+Grotesk:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<link rel="stylesheet" href="site.css?v=20261027z">
+<style>
+  .crumbs { padding-top: 24px; }
+  .athlete-layout { padding-top: 16px; }
+  .page-head { margin-bottom: 8px; }
+  .page-head .btn { margin-left: auto; }
+  .news-head .count { margin-left: auto; padding-bottom: 14px; font-size: 14px; color: var(--text-tertiary); }
+  .feed { display: grid; gap: 32px; }
+  .feed .hub-side { grid-template-columns: 1fr 1fr; }
+  .feed .card-title { min-height: 0; }
+  .feed-more { justify-self: center; }
+
+  .profile { overflow: hidden; }
+  .profile .img-frame { aspect-ratio: 4 / 5; border-radius: 0; box-shadow: none; }
+  .profile .img-frame img { object-position: center 20%; }
+  .profile-body { padding: 20px; display: grid; gap: 12px; }
+  .profile-body h2 { font: 700 24px/28px var(--heading); }
+  .profile-body .lede { font-size: 15px; line-height: 22px; color: var(--text-secondary); }
+  .profile-body .btn { width: 100%; }
+  .stat .form { margin-top: 8px; }
+  .rank-badge { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; padding-top: 12px; border-top: 1px solid var(--border-secondary); }
+  .rank-badge .big { font: 700 32px/32px var(--heading); color: var(--accent); text-align: center; }
+  .rank-badge p { font-size: 15px; line-height: 21px; color: var(--text-secondary); }
+
+  @media (max-width: 1100px) {
+    .layout-rail { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+    .side-rail { display: contents; }
+    .feed-col { display: contents; }
+    .page-head { order: -2; margin-bottom: 0; }
+    .side-rail .profile { order: -1; }
+    .profile-body .eyebrow, .profile-body h2 { display: none; }
+  }
+  @media (max-width: 760px) {
+    .page-head { flex-wrap: wrap; }
+    .page-head h1 { font-size: 30px; line-height: 36px; }
+    .page-head .btn { margin-left: 0; }
+    .side-rail { grid-template-columns: 1fr; }
+    .profile { display: grid; grid-template-columns: 120px minmax(0, 1fr); }
+    .profile .img-frame { aspect-ratio: auto; height: 100%; min-height: 180px; }
+    .profile-body { padding: 14px; gap: 8px; }
+    .profile-body .facts { display: none; }
+    .news-head { overflow-x: auto; scrollbar-width: none; }
+    .news-head .tabs { flex: none; }
+    .news-head .count { display: none; }
+    .feed .hub-side { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Pereiti prie turinio</a>
+<div data-site-header data-active="sportininkai"></div>
+
+<main id="main" class="wrap">
+  <nav aria-label="Naršymo kelias"><ol class="crumbs" id="crumbs"></ol></nav>
+  <div class="layout-rail athlete-layout">
+    <div class="feed-col">
+      <header class="page-head" id="head"></header>
+      <div class="news-head"><div class="tabs" role="tablist" aria-label="Turinio tipas" id="tabs"></div><span class="count" id="count" aria-live="polite"></span></div>
+      <div class="feed" id="feed" role="tabpanel"></div>
+    </div>
+    <aside class="side-rail" id="rail" aria-label="Apie sportininką"></aside>
+  </div>
+</main>
+
+<div data-site-footer></div>
+<script src="data.js?v=20261027z"></script>
+<script src="site.js?v=20261027ab"></script>
+<script>
+  const G = window.GAZAS;
+  const { fmt } = G;
+  const p = G.athleteById[new URLSearchParams(location.search).get("id")] || G.ATHLETES[0];
+  const profileHref = `athlete-profile.html?id=${p.id}`;
+  document.title = `${p.name}: naujienos — Gazas`;
+
+  document.getElementById("crumbs").innerHTML = `<li><a href="improved.html">Pradžia</a></li><li><a href="ratings.html?s=top">Sportininkai</a></li><li><span aria-current="page">${p.name}</span></li>`;
+  document.getElementById("head").innerHTML = `
+    <div><p class="eyebrow">${p.disc}</p><h1>${p.name}</h1><p class="sub">Naujienos, interviu ir rezultatai apie ${p.acc}</p></div>
+    <button class="btn btn-ghost" type="button" id="follow" aria-pressed="false">Sekti</button>`;
+
+  const follow = document.getElementById("follow");
+  follow.addEventListener("click", () => {
+    const on = follow.getAttribute("aria-pressed") !== "true";
+    follow.setAttribute("aria-pressed", on);
+    follow.textContent = on ? "Sekate" : "Sekti";
+  });
+
+  /* Feed */
+  const KINDS = [["all", "Visos"], ["Naujiena", "Naujienos"], ["Interviu", "Interviu"], ["Analizė", "Analizės"], ["Rezultatai", "Rezultatai"]];
+  const kindOf = (a) => a.label || "Naujiena";
+  const kinds = KINDS.filter(([k]) => k === "all" || p.articles.some((a) => kindOf(a) === k));
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = kinds.map(([k, label], i) => `<button role="tab" data-k="${k}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" aria-controls="feed">${label}</button>`).join("");
+
+  function renderFeed(k) {
+    const list = p.articles.filter((a) => k === "all" || kindOf(a) === k);
+    const [first, ...rest] = list;
+    document.getElementById("count").textContent = `${list.length} ${list.length === 1 ? "straipsnis" : list.length < 10 ? "straipsniai" : "straipsnių"}`;
+    document.getElementById("feed").innerHTML = `
+      <div class="hub-feature">${G.card(first, { dek: true })}</div>
+      ${rest.length ? `<div class="hub-side">${rest.map((a) => G.card(a, { dek: true })).join("")}</div>` : ""}
+      <a class="btn btn-ghost feed-more" href="${profileHref}#naujienos">Visas archyvas</a>`;
+  }
+  G.wireTabs(tabs, (t) => renderFeed(t.dataset.k));
+  renderFeed("all");
+
+  /* Rail */
+  const ev = p.next && G.eventById[p.next];
+  const others = G.ATHLETES.filter((x) => x.id !== p.id).slice(0, 4);
+  const cur = p.current;
+  const topEntry = p.top && G.LT_TOP[p.top - 1];
+  const titles = p.titles.length;
+
+  document.getElementById("rail").innerHTML = `
+    <section class="panel profile" aria-labelledby="pname">
+      <div class="img-frame"><img src="assets/${p.img}" alt="${p.name}"></div>
+      <div class="profile-body">
+        <p class="eyebrow">Trumpai</p>
+        <h2 id="pname">${p.name}</h2>
+        <p class="lede">${p.lede}</p>
+        <dl class="facts">
+          ${p.facts.slice(0, 4).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}
+          <div><dt>Titulai</dt><dd>${titles}</dd></div>
+          <div><dt>Geriausias</dt><dd>${p.best}</dd></div>
+        </dl>
+        <a class="btn btn-primary" href="${profileHref}">Visas profilis</a>
+      </div>
+    </section>
+
+    ${cur ? `
+    <section class="rail-block">
+      <h2>${cur.st.label} 2026</h2>
+      <div class="stat" style="--c:${G.SERIES[p.standing.series].color}">
+        <span class="eyebrow">${cur.d.pos} vieta čempionate</span>
+        <span class="big">${cur.d.points}<small>tšk.</small></span>
+        <span class="muted">${cur.d.gap ? `Atsilieka ${cur.d.gap} tšk.` : `Pirmauja ${cur.d.points - cur.st.drivers[1].points} tšk.`}</span>
+        <span class="form" aria-label="Paskutiniai rezultatai">${cur.d.form.map((x) => `<span class="r ${x === "NF" ? "nf" : x <= 3 ? `p${x}` : cur.st.pts(x) ? "pts-r" : ""}">${x}</span>`).join("")}</span>
+      </div>
+      <a class="more-link" href="ratings.html?s=${p.standing.series}">Visa lentelė ${G.arrowRed}</a>
+    </section>` : ""}
+
+    ${ev ? `
+    <section class="rail-block">
+      <h2>Artimiausias startas</h2>
+      <a class="next-ev hover-title" href="calendar.html#${ev.id}"><span class="kicker">${G.SERIES[ev.series].name}</span><span class="name t">${ev.name}</span><span class="when">${fmt.range(ev.start, ev.end)}, ${ev.place}</span></a>
+      <a class="more-link" href="calendar.html#${ev.id}">Tvarkaraštis ${G.arrowRed}</a>
+    </section>` : ""}
+
+    ${topEntry ? `
+    <section class="rail-block">
+      <h2>Gazas TOP 10</h2>
+      <div class="rank-badge"><span class="big">${p.top}</span><p>${topEntry.note}</p></div>
+      <a class="more-link" href="ratings.html?s=top">Visas reitingas ${G.arrowRed}</a>
+    </section>` : ""}
+
+    <section class="rail-block">
+      <h2>Kiti sportininkai</h2>
+      ${others.map((x) => `<a class="mini hover-title" href="athlete.html?id=${x.id}"><div class="img-frame round"><img src="assets/${x.img}" alt="" loading="lazy"></div><div><p class="t">${x.name}</p><p class="meta"><span>${x.disc}</span></p></div></a>`).join("")}
+    </section>`;
+</script>
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renginių kalendorius — Gazas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Schibsted+Grotesk:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027aa">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<link rel="stylesheet" href="site.css?v=20261027aa">
+<style>
+  .page-head { padding-top: 32px; }
+  .crumbs { padding-top: 24px; }
+
+  /* Compact now / next strip — shrink to content, no empty stretch */
+  .now-strip {
+    margin-top: 24px; padding: 12px 16px; border-radius: var(--rounded-sm);
+    background: var(--bg-inverse); color: #fff;
+    display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+    width: fit-content; max-width: 100%; box-sizing: border-box;
+  }
+  .now-strip .block { display: inline-flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; min-width: 0; }
+  #live-list { display: contents; }
+  .now-strip .lbl {
+    font: 700 11px/14px var(--body); letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text-on-dark-2); display: inline-flex; align-items: center; gap: 8px; flex: none;
+  }
+  .now-strip .live-item { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
+  .now-strip .live-item a { font-weight: 600; }
+  .now-strip .live-item a:hover { text-decoration: underline; }
+  .now-strip .sess { color: var(--text-on-dark-2); font-size: 14px; }
+  .now-strip .countdown {
+    font: 700 20px/24px var(--heading); font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+  }
+  .now-strip .countdown small { font: 500 12px/14px var(--body); color: var(--text-on-dark-2); margin: 0 4px 0 1px; }
+  .now-strip .next-name { font-size: 14px; color: #ddd; }
+  .now-strip .sep { width: 1px; height: 22px; background: #333; flex: none; }
+  .now-strip.empty-live .live-block { display: none; }
+  .now-strip.empty-live .sep { display: none; }
+
+  /* Toolbar — region + series is enough for a news calendar */
+  .toolbar {
+    position: sticky; top: 112px; z-index: 20; margin-top: 20px; padding: 12px 0;
+    background: var(--bg-primary); display: grid; gap: 10px;
+  }
+  .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .toolbar .segmented { width: auto; }
+  .toolbar .segmented button { padding: 0 16px; flex: none; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; display: inline-flex; align-items: center; gap: 8px; }
+  .chip .sw { width: 10px; height: 10px; border-radius: 50%; }
+  .count { margin-left: auto; font-size: 14px; color: var(--text-tertiary); }
+  .reset { border: 0; background: none; color: var(--accent-text); font-weight: 600; font-size: 15px; cursor: pointer; padding: 6px 0; }
+  .reset[hidden] { display: none; }
+  .adv-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 36px; padding: 0 16px;
+    border: 1px solid var(--border-primary); border-radius: 9999px;
+    background: #fff; color: var(--text-secondary);
+    font: 600 15px/20px var(--body); cursor: pointer;
+    transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .adv-toggle:hover { color: var(--text-primary); border-color: #888; }
+  .adv-toggle .chev { width: 14px; height: 14px; transition: transform var(--dur) var(--ease-out); }
+  .adv-toggle[aria-expanded="true"], .adv-toggle.is-on {
+    background: var(--text-primary); border-color: var(--text-primary); color: #fff;
+  }
+  .adv-toggle[aria-expanded="true"] .chev, .adv-toggle.is-on .chev { filter: invert(1); }
+  .adv-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .adv-panel.collapse { margin-top: 0; }
+  .adv-panel.collapse.is-open { margin-top: 2px; }
+  .adv-grid {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 0; background: none; box-shadow: none;
+  }
+  .adv-field { position: relative; display: flex; align-items: center; min-width: 0; }
+  .adv-field label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .adv-field input, .adv-field select {
+    min-height: 36px; padding: 0 44px 0 16px; border: 1px solid var(--border-primary); border-radius: 9999px;
+    background-color: #fff; font: 600 15px/20px var(--body); color: var(--text-secondary); cursor: pointer;
+  }
+  .adv-field select {
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    background-image: url("assets/chevron-down-sm.svg");
+    background-repeat: no-repeat; background-position: right 16px center; background-size: 14px 14px;
+    min-width: 160px;
+  }
+  .adv-field select::-ms-expand { display: none; }
+  .adv-field input[type="date"] {
+    min-width: 148px; color-scheme: light;
+    background-image: none; padding-right: 12px;
+  }
+  .adv-field input[type="date"]::-webkit-calendar-picker-indicator {
+    margin-inline: 0 4px; padding: 4px; cursor: pointer; opacity: .55;
+  }
+  .adv-field input:hover, .adv-field select:hover { border-color: #888; color: var(--text-primary); }
+  .adv-field input:focus, .adv-field select:focus {
+    outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 1px; border-color: #aaa;
+    color: var(--text-primary);
+  }
+  .adv-range { display: inline-flex; align-items: center; gap: 8px; }
+  .adv-range .sep { color: var(--text-tertiary); font-size: 14px; flex: none; }
+
+  .cal-main { padding-top: 8px; padding-bottom: 48px; }
+
+  /* List — divider only between events, no card stroke */
+  .group + .group { margin-top: 36px; }
+  .group-h {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px;
+    font: 700 22px/28px var(--heading);
+  }
+  .group-h span { font: 500 15px/20px var(--body); color: var(--text-tertiary); }
+
+  .ev {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto;
+    gap: 0 20px; margin-top: 10px; padding: 18px 18px 18px 20px; scroll-margin-top: 180px;
+    background: #fff; border-radius: var(--rounded-sm); box-shadow: var(--shadow-card);
+    border-left: 3px solid var(--c); cursor: pointer; align-items: center;
+    transition: box-shadow var(--dur) var(--ease-out);
+  }
+  .ev:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, .12); }
+  .ev:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ev.is-live { background: var(--live-bg); }
+  .ev.flash { animation: flash 1.4s ease-out; }
+  .ev[aria-expanded="true"] { box-shadow: 0 4px 18px rgba(0, 0, 0, .14); }
+  @keyframes flash { 0% { background: color-mix(in srgb, var(--accent) 12%, transparent); } 100% { background: transparent; } }
+
+  .date {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; gap: 2px;
+  }
+  .date .days { font: 700 22px/26px var(--heading); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .date .mon { font: 700 12px/16px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); }
+  .date .wd { font-size: 13px; color: var(--text-tertiary); }
+
+  .ev-main { display: grid; gap: 6px; align-content: center; min-width: 0; }
+  .ev-top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .series-logo { height: 24px; width: auto; display: block; border-radius: 3px; flex: none; box-shadow: var(--shadow-sm); }
+  .round { font-size: 14px; color: var(--text-tertiary); }
+  .ev-name { font: 700 20px/26px var(--heading); }
+  .ev-place { font-size: 15px; color: var(--text-secondary); }
+  .ev-track { font-size: 14px; color: var(--text-tertiary); }
+  .status { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; line-height: 20px; font-weight: 600; }
+  .status.live { color: var(--accent-text); }
+  .lt-drivers {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+    margin-top: 2px; font-size: 14px; line-height: 20px; color: var(--text-secondary);
+  }
+  .lt-drivers .flag { width: 16px; height: 11px; border-radius: 1px; background: linear-gradient(#fdb913 33.3%, #006a44 33.3% 66.6%, #c1272d 66.6%); flex: none; }
+  .lt-drivers .person { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; }
+  .lt-drivers a { font-weight: 600; color: var(--text-primary); }
+  .lt-drivers a:hover { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+  .lt-drivers .disc { color: var(--text-tertiary); font-size: 13px; }
+
+  .ev-side {
+    display: grid; gap: 10px; justify-items: end; align-content: center;
+    position: relative; min-width: 140px; padding-right: 20px;
+  }
+  .track-outline {
+    width: 140px; height: 84px; color: var(--c, #111); display: block;
+  }
+  .track-outline path {
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    opacity: .85;
+  }
+  .ev-side .watch { font-size: 14px; color: var(--text-tertiary); text-align: right; line-height: 20px; }
+  .ev-side .watch strong { color: var(--text-secondary); font-weight: 600; }
+  .ev-expand {
+    position: absolute; top: 0; right: 0;
+    display: grid; place-items: center; color: var(--text-tertiary);
+  }
+  .ev-expand .chev { width: 16px; height: 16px; transition: transform var(--dur) var(--ease-out); }
+  .ev[aria-expanded="true"] .ev-expand .chev { transform: rotate(180deg); }
+  .ev-actions { display: flex; gap: 8px; justify-content: end; }
+  .ev-actions .btn { min-height: 32px; padding: 0 12px; font-size: 13px; }
+
+  .sessions.collapse { grid-column: 1 / -1; margin-top: 0; align-self: stretch; }
+  .sessions.collapse.is-open { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-secondary); }
+  .ev-detail {
+    display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 20px 28px; align-items: start;
+  }
+  .ev-detail-track {
+    display: grid; gap: 10px; justify-items: center; text-align: center;
+  }
+  .ev-detail-track .tname { font: 700 15px/20px var(--heading); }
+  .ev-facts { display: grid; gap: 8px 20px; grid-template-columns: auto 1fr; font-size: 14px; line-height: 20px; margin: 0; }
+  .ev-facts dt { color: var(--text-tertiary); }
+  .ev-facts dd { margin: 0; font-weight: 600; }
+  .sessions table { font-size: 15px; width: 100%; margin-top: 16px; }
+  .sessions td { height: 40px; border-top: 1px solid var(--border-secondary); }
+  .sessions tr:first-child td { border-top: 0; }
+  .sessions td:first-child { width: 140px; font-weight: 500; color: var(--text-secondary); }
+  .sessions td:nth-child(2) { width: 70px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .sessions td:last-child { font-weight: 600; font-size: 14px; }
+  .sessions tr.is-next td { color: var(--text-primary); }
+  .sessions tr.is-live td { background: var(--live-bg); }
+  .st-live { color: var(--accent-text); }
+  .st-done { color: var(--text-tertiary); font-weight: 500 !important; }
+  .empty { padding: 48px 8px; color: var(--text-secondary); }
+
+  /* Month */
+  .month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .month-nav h2 { font: 700 24px/30px var(--heading); min-width: 200px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg-tertiary); display: grid; place-items: center; cursor: pointer; }
+  .icon-btn img { width: 16px; height: 16px; }
+  .icon-btn.prev img { transform: scaleX(-1); }
+  .month-nav .today-btn { margin-left: auto; }
+  .grid-month {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px; background: var(--border-secondary); border-radius: var(--rounded-sm); overflow: hidden;
+  }
+  .grid-month .wd-h { background: var(--bg-tertiary); padding: 8px 10px; font: 700 12px/16px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); }
+  .cell { background: #fff; min-height: 108px; padding: 8px; display: grid; align-content: start; gap: 4px; }
+  .cell.out { background: #fafafa; }
+  .cell.out .num { color: #aaa; }
+  .cell .num { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cell.today .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; }
+  .pill {
+    display: block; width: 100%; text-align: left; border: 0; cursor: pointer;
+    padding: 3px 6px; border-radius: 3px; background: color-mix(in srgb, var(--c) 12%, #fff);
+    border-left: 3px solid var(--c); font-size: 13px; line-height: 17px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pill:hover { background: color-mix(in srgb, var(--c) 22%, #fff); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; font-size: 14px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); }
+
+  @media (max-width: 760px) {
+    .page-head { padding-top: 8px; }
+    .page-head h1 { font-size: 30px; line-height: 36px; }
+    .now-strip { display: flex; width: 100%; padding: 14px 16px; gap: 10px; flex-direction: column; align-items: flex-start; }
+    .now-strip .sep { display: none; }
+    .now-strip .countdown { font-size: 20px; line-height: 24px; }
+    .toolbar { top: 100px; }
+    .toolbar-row { flex-wrap: nowrap; overflow-x: auto; }
+    .count { display: none; }
+    .group-h { font-size: 19px; }
+    .ev { grid-template-columns: 68px minmax(0, 1fr); gap: 0 12px; padding: 14px 14px 14px 16px; }
+    .date .days { font-size: 18px; line-height: 22px; }
+    .series-logo { height: 20px; }
+    .ev-side { grid-column: 2; justify-items: start; min-width: 0; margin-top: 4px; }
+    .ev-side .watch { text-align: left; }
+    .ev-expand { position: static; justify-self: start; }
+    .ev-detail { grid-template-columns: 1fr; gap: 16px; }
+    .ev-detail-track .track-outline { width: 120px; height: 72px; }
+    .sessions td:first-child { width: 96px; }
+    .view-switch { display: none; }
+    .adv-grid { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .adv-grid::-webkit-scrollbar { display: none; }
+    .adv-field select { min-width: 148px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Pereiti prie turinio</a>
+<div data-site-header data-active="kalendorius" data-series-links="calendar"></div>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Naršymo kelias"><ol class="crumbs"><li><a href="improved.html">Pradžia</a></li><li><span aria-current="page">Kalendorius</span></li></ol></nav>
+    <div class="page-head">
+      <div>
+        <h1>Renginių kalendorius</h1>
+        <p class="sub">Artėjantys renginiai Lietuvos laiku. Demonstracinė data: 2026-10-24.</p>
+      </div>
+    </div>
+
+    <section class="now-strip" id="now-strip" aria-label="Dabar ir netrukus">
+      <div class="block live-block">
+        <span class="lbl"><span class="dot" aria-hidden="true"></span>Vyksta dabar</span>
+        <div id="live-list"></div>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="block">
+        <span class="lbl">Kita sesija</span>
+        <span class="countdown" id="countdown" aria-live="off"></span>
+        <span class="next-name" id="next-name"></span>
+      </div>
+    </section>
+
+    <div class="toolbar" role="search" aria-label="Kalendoriaus filtrai">
+      <div class="toolbar-row">
+        <div class="segmented view-switch" role="group" aria-label="Vaizdas">
+          <button aria-pressed="true" data-view="list">Sąrašas</button>
+          <button aria-pressed="false" data-view="month">Mėnuo</button>
+        </div>
+        <div class="segmented" role="group" aria-label="Regionas" id="region">
+          <button aria-pressed="true" data-region="all">Visi</button>
+          <button aria-pressed="false" data-region="lt">Lietuva</button>
+          <button aria-pressed="false" data-region="world">Pasaulis</button>
+        </div>
+        <button class="adv-toggle" id="adv-toggle" type="button" aria-expanded="false" aria-controls="adv-panel">
+          Išplėstiniai filtrai <img class="chev" src="assets/chevron-down-sm.svg" alt="" width="14" height="14">
+        </button>
+        <button class="reset" id="reset" type="button" hidden>Išvalyti</button>
+        <p class="count" id="count" aria-live="polite"></p>
+      </div>
+      <div class="chips" role="group" aria-label="Serijos" id="series-chips"></div>
+      <div class="adv-panel collapse" id="adv-panel" aria-hidden="true">
+        <div class="collapse-inner">
+          <div class="adv-grid">
+            <div class="adv-field adv-field-dates">
+              <label for="f-from">Datos intervalas</label>
+              <div class="adv-range">
+                <input id="f-from" type="date" aria-label="Nuo">
+                <span class="sep" aria-hidden="true">–</span>
+                <input id="f-to" type="date" aria-label="Iki">
+              </div>
+            </div>
+            <div class="adv-field">
+              <label for="f-country">Šalis</label>
+              <select id="f-country"><option value="">Visos šalys</option></select>
+            </div>
+            <div class="adv-field">
+              <label for="f-champ">Čempionatas</label>
+              <select id="f-champ"><option value="">Visi čempionatai</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap cal-main">
+    <div id="list-view"></div>
+    <div id="month-view" hidden>
+      <div class="month-nav">
+        <button class="icon-btn prev" id="m-prev" aria-label="Ankstesnis mėnuo"><img src="assets/chevron-right.svg" alt=""></button>
+        <h2 id="m-title" aria-live="polite"></h2>
+        <button class="icon-btn" id="m-next" aria-label="Kitas mėnuo"><img src="assets/chevron-right.svg" alt=""></button>
+        <button class="btn btn-ghost today-btn" id="m-today" type="button">Šiandien</button>
+      </div>
+      <div class="grid-month" id="m-grid"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+</main>
+
+<div data-site-footer></div>
+<script src="data.js?v=20261027aa"></script>
+<script src="site.js?v=20261027ab"></script>
+<script>
+  const G = window.GAZAS;
+  const { fmt } = G;
+  const LIVE_MS = 3 * 3600e3;
+  const params = new URLSearchParams(location.search);
+  const COUNTRY_NAMES = {
+    LT: "Lietuva", US: "JAV", JP: "Japonija", DE: "Vokietija", AU: "Australija",
+    MX: "Meksika", MY: "Malaizija", BR: "Brazilija", ES: "Ispanija", SA: "Saudo Arabija",
+    QA: "Kataras", AE: "JAE",
+  };
+  const state = {
+    view: params.get("v") === "month" ? "month" : "list",
+    region: ["lt", "world"].includes(params.get("r")) ? params.get("r") : "all",
+    series: new Set((params.get("s") || "").split(",").filter((k) => G.SERIES[k])),
+    from: params.get("from") || "",
+    to: params.get("to") || "",
+    country: params.get("c") || "",
+    champ: params.get("ch") || "",
+    month: new Date(2026, 9, 1),
+  };
+
+  const events = G.EVENTS.map((e) => ({
+    ...e,
+    s: G.SERIES[e.series],
+    from: fmt.d(e.start),
+    to: new Date(fmt.d(e.end).getTime() + 86399e3),
+    sess: e.sessions.map(([name, at]) => ({ name, at: fmt.d(at) })),
+    people: (e.athletes || []).map((id) => G.athleteById[id]).filter(Boolean),
+  }));
+  const winnerOf = (e) => {
+    const st = G.STANDINGS[e.series];
+    return st && e.round[0] === st.done ? st.lastResult[0].name : null;
+  };
+  const stateOf = (e, now) => {
+    const live = [...e.sess].reverse().find((x) => x.at <= now && now - x.at < LIVE_MS);
+    if (live) return { kind: "live", sess: live };
+    if (e.to < now) return { kind: "past" };
+    if (e.from <= now) return { kind: "on", sess: e.sess.find((x) => x.at > now) };
+    return { kind: "future", sess: e.sess[0] };
+  };
+
+  const hasAdv = () => !!(state.from || state.to || state.country || state.champ);
+  const visible = () => {
+    const now = G.now();
+    const from = state.from ? fmt.d(state.from) : null;
+    const to = state.to ? new Date(fmt.d(state.to).getTime() + 86399e3) : null;
+    return events.filter((e) =>
+      (state.region === "all" || (state.region === "lt") === (e.country === "LT" || e.people.length > 0)) &&
+      (!state.series.size || state.series.has(e.series)) &&
+      (!state.champ || e.series === state.champ) &&
+      (!state.country || e.country === state.country) &&
+      (!from || e.to >= from) &&
+      (!to || e.from <= to) &&
+      (state.view === "month" || state.from || e.to >= now));
+  };
+  const syncUrl = () => {
+    const p = new URLSearchParams();
+    if (state.view !== "list") p.set("v", state.view);
+    if (state.region !== "all") p.set("r", state.region);
+    if (state.series.size) p.set("s", [...state.series].join(","));
+    if (state.from) p.set("from", state.from);
+    if (state.to) p.set("to", state.to);
+    if (state.country) p.set("c", state.country);
+    if (state.champ) p.set("ch", state.champ);
+    if (params.has("shot")) p.set("shot", "");
+    history.replaceState(null, "", `${location.pathname}${p.toString() ? "?" + p.toString().replace("shot=", "shot") : ""}${location.hash}`);
+  };
+
+  const usedSeries = [...new Set(events.map((e) => e.series))];
+  const usedCountries = [...new Set(events.map((e) => e.country))].sort((a, b) => (COUNTRY_NAMES[a] || a).localeCompare(COUNTRY_NAMES[b] || b, "lt"));
+  const chips = document.getElementById("series-chips");
+  chips.innerHTML = usedSeries.map((k) => `<button class="chip" data-s="${k}" aria-pressed="${state.series.has(k)}"><span class="sw" style="background:${G.SERIES[k].color}"></span>${G.SERIES[k].name}</button>`).join("");
+  chips.addEventListener("click", (e) => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const k = b.dataset.s;
+    state.champ = "";
+    champSel.value = "";
+    state.series.has(k) ? state.series.delete(k) : state.series.add(k);
+    render();
+  });
+  const countrySel = document.getElementById("f-country");
+  const champSel = document.getElementById("f-champ");
+  countrySel.innerHTML = `<option value="">Visos šalys</option>${usedCountries.map((c) => `<option value="${c}">${COUNTRY_NAMES[c] || c}</option>`).join("")}`;
+  champSel.innerHTML = `<option value="">Visi čempionatai</option>${usedSeries.map((k) => `<option value="${k}">${G.SERIES[k].name}</option>`).join("")}`;
+  document.getElementById("f-from").value = state.from;
+  document.getElementById("f-to").value = state.to;
+  countrySel.value = state.country;
+  champSel.value = state.champ;
+  const syncAdvInputs = () => {
+    document.getElementById("f-from").value = state.from;
+    document.getElementById("f-to").value = state.to;
+    countrySel.value = state.country;
+    champSel.value = state.champ;
+  };
+  document.getElementById("f-from").addEventListener("change", (e) => { state.from = e.target.value; render(); });
+  document.getElementById("f-to").addEventListener("change", (e) => { state.to = e.target.value; render(); });
+  countrySel.addEventListener("change", (e) => { state.country = e.target.value; render(); });
+  champSel.addEventListener("change", (e) => {
+    state.champ = e.target.value;
+    if (state.champ) { state.series.clear(); state.series.add(state.champ); }
+    render();
+  });
+  const advToggle = document.getElementById("adv-toggle");
+  advToggle.addEventListener("click", () => {
+    const open = advToggle.getAttribute("aria-expanded") !== "true";
+    G.setExpanded(advToggle, open);
+  });
+  if (hasAdv()) G.setExpanded(advToggle, true);
+  document.querySelectorAll("#region button").forEach((b) => b.addEventListener("click", () => { state.region = b.dataset.region; render(); }));
+  document.querySelectorAll(".view-switch button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; render(); }));
+  document.getElementById("reset").addEventListener("click", () => {
+    state.region = "all";
+    state.series.clear();
+    state.from = "";
+    state.to = "";
+    state.country = "";
+    state.champ = "";
+    syncAdvInputs();
+    render();
+  });
+
+  const weekStart = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+  function groupKey(e, now) {
+    const thisWeek = weekStart(now).getTime();
+    const w = weekStart(e.from).getTime();
+    if (w <= thisWeek && e.to >= weekStart(now)) return ["w0", "Šis savaitgalis", fmt.range("2026-10-23", "2026-10-25")];
+    const next = weekStart(now); next.setDate(next.getDate() + 7);
+    if (w === next.getTime()) return ["w1", "Kitas savaitgalis", ""];
+    return [`m${e.from.getFullYear()}-${e.from.getMonth()}`, `${fmt.MONTHS_NOM[e.from.getMonth()]} ${e.from.getFullYear()}`, ""];
+  }
+  const dayRange = (e) => e.start === e.end ? `${e.from.getDate()}` : `${e.from.getDate()}–${e.to.getDate()}`;
+  const monRange = (e) => e.from.getMonth() === e.to.getMonth() ? fmt.MON_SHORT[e.from.getMonth()] : `${fmt.MON_SHORT[e.from.getMonth()]}–${fmt.MON_SHORT[e.to.getMonth()]}`;
+  const relDays = (d, now) => { const n = Math.round((new Date(d).setHours(0, 0, 0, 0) - new Date(now).setHours(0, 0, 0, 0)) / 864e5); return n === 1 ? "rytoj" : `po ${n} d.`; };
+
+  const trackSVG = (track, cls = "track-outline") => track
+    ? `<svg class="${cls}" viewBox="0 0 100 60" aria-hidden="true"><path d="${track.path}"/></svg>`
+    : "";
+
+  function eventHTML(e, now) {
+    const st = stateOf(e, now);
+    const track = G.TRACKS[e.track];
+    const win = st.kind === "past" && winnerOf(e);
+    const status = st.kind === "live" ? `<p class="status live"><span class="dot" aria-hidden="true"></span>Vyksta: ${st.sess.name.toLowerCase()}</p>`
+      : st.kind === "past" ? `<p class="status">Baigėsi${win ? `. Laimėjo <strong>${win}</strong>` : ""}</p>`
+      : st.kind === "on" ? `<p class="status">${st.sess ? `Toliau: ${st.sess.name}, ${fmt.DAYS[st.sess.at.getDay()].toLowerCase()} ${fmt.pad(st.sess.at.getHours())}:${fmt.pad(st.sess.at.getMinutes())}` : "Baigiasi šiandien"}</p>`
+      : `<p class="status">Prasideda ${relDays(e.from, now)}</p>`;
+    const next = e.sess.find((x) => x.at > now);
+    const rows = e.sess.map((x) => {
+      const isLive = x.at <= now && now - x.at < LIVE_MS;
+      const cls = isLive ? "is-live" : x === next ? "is-next" : "";
+      const label = isLive ? '<span class="st-live">Vyksta</span>' : x.at < now ? '<span class="st-done">Baigėsi</span>' : x === next ? "Kita sesija" : "";
+      return `<tr class="${cls}"><td>${fmt.DAYS[x.at.getDay()]}, ${fmt.pad(x.at.getMonth() + 1)}-${fmt.pad(x.at.getDate())}</td><td>${fmt.pad(x.at.getHours())}:${fmt.pad(x.at.getMinutes())}</td><td>${x.name}</td><td>${label}</td></tr>`;
+    }).join("");
+    const champ = G.STANDINGS[e.series];
+    const lt = e.people.length ? `<div class="lt-drivers"><span class="flag" aria-hidden="true"></span>${e.people.map((p) => `<span class="person"><a href="athlete.html?id=${p.id}">${p.name}</a><span class="disc">${p.disc}</span></span>`).join("")}</div>` : "";
+    const roundLabel = e.round[1] > 1 ? `${e.round[0]} etapas iš ${e.round[1]}` : "Vienintelis etapas";
+    return `
+    <article class="ev${st.kind === "live" ? " is-live" : ""}" id="${e.id}" style="--c:${e.s.color}"
+      tabindex="0" role="button" aria-expanded="false" aria-controls="${e.id}-s" data-toggle
+      aria-labelledby="${e.id}-name">
+      <div class="date" aria-label="${e.start} – ${e.end}">
+        <span class="days">${dayRange(e)}</span>
+        <span class="mon">${monRange(e)}</span>
+        <span class="wd">${fmt.DAYS_SHORT[e.from.getDay()]}${e.start !== e.end ? `–${fmt.DAYS_SHORT[e.to.getDay()]}` : ""}</span>
+      </div>
+      <div class="ev-main">
+        <div class="ev-top">
+          <img class="series-logo" src="assets/${e.s.logo}" alt="${e.s.name}" width="72" height="22">
+          <span class="round">${e.round[1] > 1 ? `${e.round[0]} etapas iš ${e.round[1]}` : ""}</span>
+          ${e.country === "LT" ? '<span class="lt">LT</span>' : ""}
+        </div>
+        <h3 class="ev-name" id="${e.id}-name">${e.name}</h3>
+        <p class="ev-place">${e.place}</p>
+        ${track ? `<p class="ev-track">${track.name}</p>` : ""}
+        ${status}
+        ${lt}
+      </div>
+      <div class="ev-side">
+        <span class="ev-expand" aria-hidden="true"><img class="chev" src="assets/chevron-down-sm.svg" alt="" width="16" height="16"></span>
+        <span class="watch">Transliacija: <strong>${e.watch}</strong></span>
+        ${st.kind === "past" && champ ? `<div class="ev-actions"><a class="btn btn-ghost" href="ratings.html?s=${e.series}&v=last">Rezultatai</a></div>` : ""}
+      </div>
+      <div class="sessions collapse" id="${e.id}-s" aria-hidden="true">
+        <div class="collapse-inner">
+          <div class="ev-detail">
+            <div class="ev-detail-track">
+              ${trackSVG(track)}
+              ${track ? `<p class="tname">${track.name}</p>` : ""}
+            </div>
+            <div>
+              <dl class="ev-facts">
+                <dt>Vieta</dt><dd>${e.place}</dd>
+                <dt>Trasa</dt><dd>${track ? track.name : "—"}</dd>
+                <dt>Šalis</dt><dd>${COUNTRY_NAMES[e.country] || e.country}</dd>
+                <dt>Etapas</dt><dd>${roundLabel}</dd>
+                <dt>Datos</dt><dd>${fmt.range(e.start, e.end)}</dd>
+                ${e.people.length ? `<dt>Lietuviai</dt><dd>${e.people.map((p) => p.name).join(", ")}</dd>` : ""}
+              </dl>
+              <table><caption class="sr-only">${e.name} tvarkaraštis</caption><thead><tr><th scope="col">Diena</th><th scope="col">Laikas</th><th scope="col">Sesija</th><th scope="col">Būsena</th></tr></thead><tbody>${rows}</tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderList(list, now) {
+    const el = document.getElementById("list-view");
+    if (!list.length) {
+      el.innerHTML = `<div class="empty"><p><strong>Pagal filtrus artėjančių renginių nėra.</strong></p><p>Pabandykite pasirinkti kitą regioną arba seriją.</p></div>`;
+      return;
+    }
+    const groups = new Map();
+    list.sort((a, b) => a.from - b.from || (stateOf(b, now).kind === "live") - (stateOf(a, now).kind === "live")).forEach((e) => {
+      const [k, title, sub] = groupKey(e, now);
+      if (!groups.has(k)) groups.set(k, { title, sub, items: [] });
+      groups.get(k).items.push(e);
+    });
+    el.innerHTML = [...groups.values()].map((g) => `
+      <section class="group" aria-label="${g.title}">
+        <h2 class="group-h">${g.title}${g.sub ? `<span>${g.sub}</span>` : ""}<span>${g.items.length}</span></h2>
+        ${g.items.map((e) => eventHTML(e, now)).join("")}
+      </section>`).join("");
+  }
+
+  function renderMonth(list, now) {
+    const m = state.month;
+    document.getElementById("m-title").textContent = `${fmt.MONTHS_NOM[m.getMonth()]} ${m.getFullYear()}`;
+    const first = weekStart(m);
+    const cells = [];
+    ["Pr", "An", "Tr", "Kt", "Pn", "Št", "Sk"].forEach((d) => cells.push(`<div class="wd-h" aria-hidden="true">${d}</div>`));
+    for (let i = 0; i < 42; i++) {
+      const day = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i);
+      if (i >= 35 && day.getMonth() !== m.getMonth()) break;
+      const evs = list.filter((e) => e.from <= day && e.to >= day);
+      const today = day.toDateString() === now.toDateString();
+      cells.push(`<div class="cell${day.getMonth() !== m.getMonth() ? " out" : ""}${today ? " today" : ""}">
+        <span class="num"${today ? ' aria-label="Šiandien"' : ""}>${day.getDate()}</span>
+        ${evs.map((e) => `<button class="pill" style="--c:${e.s.color}" data-open="${e.id}" title="${e.s.name}: ${e.name}"><b>${e.s.short}</b> ${e.name}</button>`).join("")}
+      </div>`);
+    }
+    document.getElementById("m-grid").innerHTML = cells.join("");
+    const present = [...new Set(list.map((e) => e.series))];
+    document.getElementById("legend").innerHTML = present.map((k) => `<span><i style="--c:${G.SERIES[k].color}"></i>${G.SERIES[k].name}</span>`).join("");
+  }
+  const shiftMonth = (n) => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + n, 1); render(); };
+  document.getElementById("m-prev").addEventListener("click", () => shiftMonth(-1));
+  document.getElementById("m-next").addEventListener("click", () => shiftMonth(1));
+  document.getElementById("m-today").addEventListener("click", () => { state.month = new Date(2026, 9, 1); render(); });
+  document.getElementById("m-grid").addEventListener("click", (e) => {
+    const p = e.target.closest("[data-open]"); if (!p) return;
+    state.view = "list";
+    render(); openEvent(p.dataset.open);
+  });
+
+  function renderNow() {
+    const now = G.now();
+    const strip = document.getElementById("now-strip");
+    const liveList = events.flatMap((e) => { const st = stateOf(e, now); return st.kind === "live" ? [{ e, sess: st.sess }] : []; });
+    strip.classList.toggle("empty-live", !liveList.length);
+    document.getElementById("live-list").innerHTML = liveList.map(({ e, sess }) => `
+      <span class="live-item"><span class="badge" style="--c:${e.s.color}">${e.s.short}</span><a href="#${e.id}" data-jump="${e.id}">${e.name}</a><span class="sess">${sess.name}</span></span>`).join("");
+    const upcoming = events.flatMap((e) => e.sess.filter((x) => x.at > now).map((x) => ({ e, x }))).sort((a, b) => a.x.at - b.x.at)[0];
+    if (upcoming) {
+      const diff = upcoming.x.at - now;
+      const h = Math.floor(diff / 36e5), m = Math.floor((diff % 36e5) / 6e4), s = Math.floor((diff % 6e4) / 1e3);
+      document.getElementById("countdown").innerHTML = `${fmt.pad(h)}<small>val.</small>${fmt.pad(m)}<small>min.</small>${fmt.pad(s)}<small>s</small>`;
+      document.getElementById("countdown").setAttribute("aria-label", `Po ${h} val. ${m} min.`);
+      document.getElementById("next-name").innerHTML = `${upcoming.e.s.name}: ${upcoming.e.name}, ${upcoming.x.name.toLowerCase()}`;
+    }
+  }
+
+  const toggleEvent = (el, force) => {
+    if (!el || !el.hasAttribute("data-toggle")) return;
+    const open = force == null ? el.getAttribute("aria-expanded") !== "true" : !!force;
+    G.setExpanded(el, open);
+  };
+  document.getElementById("list-view").addEventListener("click", (e) => {
+    if (e.target.closest("a, button")) return;
+    const t = e.target.closest(".ev[data-toggle]");
+    if (t) toggleEvent(t);
+  });
+  document.getElementById("list-view").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.target.closest("a, button")) return;
+    const t = e.target.closest(".ev[data-toggle]");
+    if (!t || e.target !== t) return;
+    e.preventDefault();
+    toggleEvent(t);
+  });
+  document.getElementById("now-strip").addEventListener("click", (e) => {
+    const j = e.target.closest("[data-jump]"); if (!j) return;
+    e.preventDefault(); openEvent(j.dataset.jump);
+  });
+  function openEvent(id) {
+    let el = document.getElementById(id);
+    if (!el) { state.series.clear(); state.region = "all"; render(); el = document.getElementById(id); }
+    if (!el) return;
+    toggleEvent(el, true);
+    el.scrollIntoView({ block: "start" });
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    history.replaceState(null, "", `${location.pathname}${location.search}#${id}`);
+  }
+
+  function render() {
+    const now = G.now();
+    const list = visible();
+    document.querySelectorAll(".view-switch button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
+    document.querySelectorAll("#region button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.region === state.region));
+    const listEl = document.getElementById("list-view");
+    const monthEl = document.getElementById("month-view");
+    const showList = state.view === "list";
+    [listEl, monthEl].forEach((el) => {
+      const on = el === (showList ? listEl : monthEl);
+      el.classList.add("fade-swap");
+      if (on) {
+        el.hidden = false;
+        requestAnimationFrame(() => el.classList.remove("is-exit"));
+      } else {
+        el.classList.add("is-exit");
+        const end = () => { el.hidden = true; el.classList.remove("is-exit"); el.removeEventListener("transitionend", end); };
+        el.addEventListener("transitionend", end);
+        setTimeout(end, 320);
+      }
+    });
+    document.getElementById("count").textContent = `${list.length} ${list.length === 1 ? "renginys" : "renginiai"}`;
+    document.getElementById("reset").hidden = state.region === "all" && !state.series.size && !hasAdv();
+    advToggle.classList.toggle("is-on", hasAdv());
+    chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", state.series.has(c.dataset.s) || c.dataset.s === state.champ));
+    state.view === "list" ? renderList(list, now) : renderMonth(list, now);
+    syncUrl();
+  }
+
+  render();
+  renderNow();
+  setInterval(renderNow, 1000);
+  if (location.hash.length > 1) openEvent(decodeURIComponent(location.hash.slice(1)));
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 32" role="img" aria-label="Formulė 1">
+  <rect width="56" height="32" rx="3" fill="#15151e"/>
+  <text x="10" y="22" fill="#fff" font-family="Arial Black, Helvetica Neue, sans-serif" font-size="16" font-weight="900">F</text>
+  <text x="24" y="22" fill="#e10600" font-family="Arial Black, Helvetica Neue, sans-serif" font-size="16" font-weight="900">1</text>
+  <path d="M38 9h14v2H40.2L38 16.8V9zm2.2 4.8h11v2H41.6l-1.1 2.8H50v2H38l2.2-11.6z" fill="#fff"/>
+</svg>

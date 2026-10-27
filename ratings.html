@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reitingai — Gazas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Schibsted+Grotesk:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<link rel="stylesheet" href="site.css?v=20261027z">
+<style>
+  .crumbs { padding-top: 24px; }
+  .page-head { padding-top: 8px; }
+  .season { margin-left: auto; display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--text-tertiary); }
+  .season select { min-height: 40px; padding: 0 36px 0 14px; border-radius: var(--rounded-sm); border: 1px solid var(--border-primary); background: #fff url("assets/chevron-down-sm.svg") no-repeat right 12px center; appearance: none; font: 600 15px var(--body); color: var(--text-primary); }
+
+  .champ-tabs { display: flex; gap: 4px; margin-top: 24px; border-bottom: 1px solid var(--border-secondary); overflow-x: auto; scrollbar-width: none; }
+  .champ-tabs [role="tab"] { flex: none; display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer; padding: 12px 16px; margin-bottom: -1px; font: 600 17px/24px var(--tab); color: var(--text-tertiary); border-bottom: 3px solid transparent; }
+  .champ-tabs [role="tab"]:hover { color: var(--text-primary); }
+  .champ-tabs [role="tab"][aria-selected="true"] { color: var(--text-primary); border-color: var(--c, var(--accent)); }
+  .champ-tabs .sw { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .champ-tabs .flag { width: 18px; height: 12px; border-radius: 2px; background: linear-gradient(#fdb913 33.3%, #006a44 33.3% 66.6%, #c1272d 66.6%); }
+
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+  .stat .bar { margin: 6px 0 2px; }
+  .stat a.more-link { margin-top: 6px; font-size: 14px; }
+
+  .view-head { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 24px; margin-top: 32px; }
+  .view-tabs { display: flex; padding: 3px; background: #e6e6e6; border-radius: 9999px; }
+  .view-tabs [role="tab"] { border: 0; border-radius: 9999px; background: transparent; cursor: pointer; min-height: 38px; padding: 0 18px; font-size: 15px; font-weight: 600; color: var(--text-secondary); }
+  .view-tabs [role="tab"][aria-selected="true"] { background: #fff; color: var(--text-primary); box-shadow: var(--shadow-sm); }
+  .search { margin-left: auto; position: relative; }
+  .search input { width: 280px; min-height: 40px; padding: 0 14px 0 38px; border-radius: 9999px; border: 1px solid var(--border-primary); background: #fff; font: inherit; font-size: 15px; }
+  .search img { position: absolute; left: 14px; top: 12px; width: 16px; height: 16px; filter: invert(1) brightness(.4); }
+
+  .table-wrap { margin-top: 16px; }
+  .st .chg { width: 44px; font-size: 13px; font-weight: 700; }
+  .up { color: #0a7a3d; } .down { color: var(--accent-text); } .same { color: #9a9a9a; }
+  .driver .team-sm { display: none; font-weight: 400; font-size: 13px; color: var(--text-tertiary); }
+  .gap { color: var(--text-tertiary); }
+  .st .sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .st .sort:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .st .sort::after { content: "↕"; opacity: .4; }
+  .st [aria-sort="descending"] .sort::after { content: "↓"; opacity: 1; }
+  .st [aria-sort="ascending"] .sort::after { content: "↑"; opacity: 1; }
+  tr.is-leader td { background: color-mix(in srgb, var(--c) 6%, #fff); }
+  .team-bar { width: 160px; height: 8px; border-radius: 4px; background: #eee; overflow: hidden; }
+  .team-bar i { display: block; height: 100%; background: var(--c); }
+
+  .matrix th.rd { text-align: center; padding: 0 4px; width: 40px; }
+  .matrix td.rd { text-align: center; padding: 0 3px; }
+  .matrix .r { min-width: 32px; }
+  .matrix th.future, .matrix td.future { color: #bbb; }
+  .sticky-col { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #eee; }
+  thead .sticky-col { background: #fafafa; z-index: 2; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; font-size: 14px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .r { min-width: 26px; height: 22px; font-size: 12px; }
+
+  .last-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; margin-top: 16px; }
+  .last-head h2 { font: 700 22px/28px var(--heading); }
+  .last-head .muted { color: var(--text-tertiary); }
+  .last-head .more-link { margin-left: auto; }
+
+  /* TOP 10 intro (list styles live in site.css) */
+  .top-intro { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; margin-top: 24px; }
+  .top-intro p { font-size: 17px; line-height: 26px; color: var(--text-secondary); max-width: 64ch; }
+  .top-intro .muted { font-size: 14px; color: var(--text-tertiary); }
+  .top-list { margin-top: 20px; }
+  .note-demo { margin-top: 16px; font-size: 14px; color: var(--text-tertiary); }
+
+  @media (max-width: 1100px) {
+    .summary { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .page-head { flex-wrap: wrap; }
+    .page-head h1 { font-size: 30px; line-height: 36px; }
+    .season { margin-left: 0; }
+    .summary { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { padding: 14px; }
+    .stat .big { font-size: 22px; line-height: 28px; }
+    .view-head { gap: 12px; }
+    .view-tabs { overflow-x: auto; max-width: 100%; }
+    .view-tabs [role="tab"] { flex: none; padding: 0 14px; }
+    .search { margin-left: 0; width: 100%; }
+    .search input { width: 100%; }
+    .hide-m { display: none; }
+    .driver .team-sm { display: block; }
+    .driver span { display: grid; }
+    .st th, .st td { padding: 0 8px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Pereiti prie turinio</a>
+<div data-site-header data-active="reitingai" data-series-links="ratings"></div>
+
+<main id="main" class="wrap">
+  <nav aria-label="Naršymo kelias"><ol class="crumbs"><li><a href="improved.html">Pradžia</a></li><li><span aria-current="page">Reitingai</span></li></ol></nav>
+  <div class="page-head">
+    <div>
+      <h1>Reitingai</h1>
+      <p class="sub">Čempionatų lentelės, etapų rezultatai ir Gazas Lietuvos TOP 10</p>
+    </div>
+    <label class="season">Sezonas
+      <select id="season"><option>2026</option><option disabled>2025 (archyvas netrukus)</option></select>
+    </label>
+  </div>
+
+  <div class="champ-tabs" role="tablist" aria-label="Čempionatas" id="champ-tabs"></div>
+  <div id="champ" role="tabpanel"></div>
+  <p class="note-demo">Demonstraciniai duomenys: rezultatai sugeneruoti prototipui, taškai skaičiuojami pagal tikras serijų taškų sistemas.</p>
+</main>
+
+<div data-site-footer></div>
+<script src="data.js?v=20261027z"></script>
+<script src="site.js?v=20261027ab"></script>
+<script>
+  const G = window.GAZAS;
+  const { fmt } = G;
+  const params = new URLSearchParams(location.search);
+  const KEYS = ["f1", "wrc", "motogp", "larc", "top"];
+  const VIEWS = ["drivers", "teams", "rounds", "last"];
+  const state = {
+    key: KEYS.includes(params.get("s")) ? params.get("s") : "f1",
+    view: VIEWS.includes(params.get("v")) ? params.get("v") : "drivers",
+    sort: { col: "pos", dir: "ascending" },
+    q: "",
+  };
+
+  const tabs = document.getElementById("champ-tabs");
+  tabs.innerHTML = KEYS.map((k) => k === "top"
+    ? `<button role="tab" data-key="top" aria-selected="${state.key === k}" tabindex="${state.key === k ? 0 : -1}"><span class="flag" aria-hidden="true"></span>Gazas TOP 10</button>`
+    : `<button role="tab" data-key="${k}" style="--c:${G.SERIES[k].color}" aria-selected="${state.key === k}" tabindex="${state.key === k ? 0 : -1}"><span class="sw" aria-hidden="true"></span>${G.STANDINGS[k].label}</button>`).join("");
+  G.wireTabs(tabs, (t) => { state.key = t.dataset.key; state.q = ""; state.sort = { col: "pos", dir: "ascending" }; render(); });
+
+  const cls = (p, st) => p === "NF" ? "nf" : p === 1 ? "p1" : p === 2 ? "p2" : p === 3 ? "p3" : st.pts(p) > 0 ? "pts-r" : "";
+  const chip = (p, st) => `<span class="r ${cls(p, st)}">${p === "NF" ? "NF" : p}</span>`;
+  const change = (c) => c > 0 ? `<span class="up" aria-label="Pakilo ${c}">▲${c}</span>` : c < 0 ? `<span class="down" aria-label="Nukrito ${-c}">▼${-c}</span>` : `<span class="same" aria-label="Be pokyčių">–</span>`;
+  const syncUrl = () => {
+    const p = new URLSearchParams({ s: state.key });
+    if (state.key !== "top" && state.view !== "drivers") p.set("v", state.view);
+    history.replaceState(null, "", `${location.pathname}?${p}${params.has("shot") ? "&shot" : ""}`);
+  };
+
+  function summary(st) {
+    const c = G.SERIES[st.key].color;
+    const [p1, p2] = st.drivers;
+    const nextEv = G.eventById[st.next];
+    const pct = (st.done / st.rounds.length) * 100;
+    return `<div class="summary" style="--c:${c}">
+      <div class="stat"><span class="eyebrow">Lyderis</span><span class="big">${p1.points}<small>tšk.</small></span><span class="who">${p1.name}</span><span class="muted">${p1.team}, pergalių: ${p1.wins}</span></div>
+      <div class="stat"><span class="eyebrow">Atsilikimas</span><span class="big">−${p2.gap}<small>tšk.</small></span><span class="who">${p2.name}</span><span class="muted">${p2.team}</span></div>
+      <div class="stat"><span class="eyebrow">Sezono eiga</span><span class="big">${st.done}<small>/ ${st.rounds.length} etapų</small></span>
+        <span class="bar" role="progressbar" aria-label="Sezono eiga" aria-valuenow="${st.done}" aria-valuemin="0" aria-valuemax="${st.rounds.length}"><i style="width:${pct}%"></i></span>
+        <span class="muted">Liko iki ${st.remaining} tšk.</span><span class="muted">Titulo dar siekia: <strong>${st.contenders}</strong></span></div>
+      <div class="stat"><span class="eyebrow">Kitas etapas</span><span class="who">${nextEv.name}</span><span class="muted">${fmt.range(nextEv.start, nextEv.end)}, ${nextEv.place}</span><a class="more-link" href="calendar.html#${nextEv.id}">Tvarkaraštis ${G.arrowRed}</a></div>
+    </div>`;
+  }
+
+  function viewHead(st) {
+    const labels = { drivers: `${st.unit === "Ekipažas" ? "Ekipažai" : "Pilotai"}`, teams: "Komandos", rounds: "Etapų rezultatai", last: `Paskutinis etapas` };
+    return `<div class="view-head">
+      <div class="view-tabs" role="tablist" aria-label="Lentelės vaizdas" id="view-tabs">${VIEWS.map((v) => `<button role="tab" data-v="${v}" aria-selected="${state.view === v}" tabindex="${state.view === v ? 0 : -1}" aria-controls="view">${labels[v]}</button>`).join("")}</div>
+      ${state.view === "drivers" || state.view === "rounds" ? `<label class="search"><span class="sr-only">Ieškoti</span><img src="assets/search.svg" alt=""><input id="q" type="search" placeholder="Ieškoti piloto ar komandos" value="${state.q}"></label>` : ""}
+    </div>`;
+  }
+
+  function driversTable(st) {
+    const q = state.q.trim().toLowerCase();
+    let rows = st.drivers.filter((d) => !q || d.name.toLowerCase().includes(q) || d.team.toLowerCase().includes(q));
+    const { col, dir } = state.sort;
+    rows = [...rows].sort((a, b) => (dir === "ascending" ? 1 : -1) * (a[col] - b[col]));
+    const th = (c, label, extra = "") => `<th scope="col" class="${extra}" aria-sort="${state.sort.col === c ? state.sort.dir : "none"}"><button class="sort" data-sort="${c}">${label}</button></th>`;
+    return `<div class="table-wrap"><table class="st" id="view">
+      <caption class="sr-only">${st.label} ${st.unit === "Ekipažas" ? "ekipažų" : "pilotų"} įskaita</caption>
+      <thead><tr>${th("pos", "Poz.")}<th scope="col" class="chg hide-m"><span class="sr-only">Pokytis</span>±</th><th scope="col">${st.unit}</th><th scope="col" class="hide-m">Komanda</th>${th("wins", "Perg.", "num")}${th("podiums", "Podiumai", "num hide-m")}<th scope="col" class="hide-m">Forma</th>${th("points", "Taškai", "num")}<th scope="col" class="num hide-m">Atsil.</th></tr></thead>
+      <tbody>${rows.map((d) => `<tr class="${d.pos === 1 ? "is-leader" : ""}" style="--c:${d.color}">
+        <td class="pos">${d.pos}</td><td class="chg hide-m">${change(d.change)}</td>
+        <td><span class="driver"><i aria-hidden="true"></i><span>${d.name}<span class="team-sm">${d.team}</span></span></span></td>
+        <td class="hide-m">${d.team}</td><td class="num">${d.wins}</td><td class="num hide-m">${d.podiums}</td>
+        <td class="hide-m"><span class="form" aria-label="Paskutiniai 5 rezultatai">${d.form.map((p) => chip(p, st)).join("")}</span></td>
+        <td class="num pts">${d.points}</td><td class="num gap hide-m">${d.gap ? `−${d.gap}` : "—"}</td></tr>`).join("") || `<tr><td colspan="9">Nieko nerasta pagal „${state.q}“.</td></tr>`}</tbody>
+    </table></div>`;
+  }
+
+  function teamsTable(st) {
+    const top = st.teams[0].points;
+    return `<div class="table-wrap"><table class="st" id="view">
+      <caption class="sr-only">${st.label} komandų įskaita</caption>
+      <thead><tr><th scope="col">Poz.</th><th scope="col">Komanda</th><th scope="col" class="hide-m">Sudėtis</th><th scope="col" class="num">Perg.</th><th scope="col" class="hide-m"><span class="sr-only">Santykis su lyderiu</span></th><th scope="col" class="num">Taškai</th></tr></thead>
+      <tbody>${st.teams.map((t, i) => `<tr style="--c:${t.color}"><td class="pos">${i + 1}</td><td><span class="driver"><i aria-hidden="true"></i>${t.name}</span></td><td class="hide-m">${t.drivers.join(", ")}</td><td class="num">${t.wins}</td><td class="hide-m"><span class="team-bar"><i style="width:${(t.points / top) * 100}%"></i></span></td><td class="num pts">${t.points}</td></tr>`).join("")}</tbody>
+    </table></div>`;
+  }
+
+  function matrix(st) {
+    const q = state.q.trim().toLowerCase();
+    const rows = st.drivers.filter((d) => !q || d.name.toLowerCase().includes(q) || d.team.toLowerCase().includes(q));
+    return `<div class="table-wrap"><table class="st matrix" id="view">
+      <caption class="sr-only">${st.label} rezultatai pagal etapus</caption>
+      <thead><tr><th scope="col" class="sticky-col">${st.unit}</th>${st.rounds.map((r, i) => `<th scope="col" class="rd${i >= st.done ? " future" : ""}" title="${i + 1} etapas">${r}</th>`).join("")}<th scope="col" class="num">Tšk.</th></tr></thead>
+      <tbody>${rows.map((d) => `<tr style="--c:${d.color}"><th scope="row" class="sticky-col"><span class="driver"><i aria-hidden="true"></i>${d.pos}. ${d.name}</span></th>${st.rounds.map((_, i) => `<td class="rd${i >= st.done ? " future" : ""}">${i < st.done ? chip(d.results[i], st) : "–"}</td>`).join("")}<td class="num pts">${d.points}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <div class="legend"><span><span class="r p1">1</span>Pergalė</span><span><span class="r p2">2</span>2 vieta</span><span><span class="r p3">3</span>3 vieta</span><span><span class="r pts-r">7</span>Taškai</span><span><span class="r">14</span>Be taškų</span><span><span class="r nf">NF</span>Nefinišavo</span></div>`;
+  }
+
+  function lastRound(st) {
+    const ev = G.EVENTS.find((e) => e.series === st.key && e.round[0] === st.done);
+    const related = G.ARTICLES.find((a) => a.series === st.key);
+    return `<div class="last-head"><h2>${ev ? `${ev.name}, ${ev.place}` : `${st.done} etapas (${st.lastRound})`}</h2><span class="muted">${ev ? `${fmt.day(ev.end)}, ` : ""}${st.done} etapas iš ${st.rounds.length}</span>${related ? `<a class="more-link" href="${G.href(related)}">Lenktynių apžvalga ${G.arrowRed}</a>` : ""}</div>
+    <div class="table-wrap"><table class="st" id="view">
+      <caption class="sr-only">Paskutinio etapo rezultatai</caption>
+      <thead><tr><th scope="col">Poz.</th><th scope="col">${st.unit}</th><th scope="col" class="hide-m">Komanda</th><th scope="col" class="num">Gauta tšk.</th><th scope="col" class="num">Iš viso</th></tr></thead>
+      <tbody>${st.lastResult.map((d) => `<tr style="--c:${d.color}"><td class="pos">${chip(d.lastPos, st)}</td><td><span class="driver"><i aria-hidden="true"></i><span>${d.name}<span class="team-sm">${d.team}</span></span></span></td><td class="hide-m">${d.team}</td><td class="num">${st.pts(d.lastPos) ? `+${st.pts(d.lastPos)}` : "—"}</td><td class="num pts">${d.points}</td></tr>`).join("")}</tbody>
+    </table></div>`;
+  }
+
+  function topTen() {
+    const mv = (m) => m === "new" ? '<span class="mv new">NAUJAS</span>' : `<span class="mv">${change(m)}</span>`;
+    return `<div class="top-intro">
+      <p>Redakcijos sudaromas geriausių Lietuvos auto ir moto sportininkų reitingas. Vertiname paskutinio mėnesio rezultatus, varžybų lygį ir formą.</p>
+      <span class="muted">Atnaujinama kas pirmadienį, paskutinį kartą spalio 19 d.</span>
+    </div>
+    <ol class="top-list">${G.LT_TOP.map((p, i) => `
+      <li class="top-item">
+        <span class="rk">${i + 1}</span>
+        <span class="ph">${p.img ? `<img src="assets/${p.img}" alt="">` : p.name.split(" ").map((x) => x[0]).join("")}</span>
+        <span><span class="disc">${p.disc}</span><p class="nm">${p.id ? `<a href="athlete.html?id=${p.id}">${p.name}</a>` : p.name}</p><p class="note">${p.note}</p></span>
+        ${mv(p.move)}
+      </li>`).join("")}</ol>`;
+  }
+
+  function render() {
+    const panel = document.getElementById("champ");
+    if (state.key === "top") { panel.innerHTML = topTen(); syncUrl(); return; }
+    const st = G.STANDINGS[state.key];
+    const body = { drivers: driversTable, teams: teamsTable, rounds: matrix, last: lastRound }[state.view](st);
+    panel.innerHTML = summary(st) + viewHead(st) + body;
+    G.wireTabs(document.getElementById("view-tabs"), (t) => { if (state.view !== t.dataset.v) { state.view = t.dataset.v; render(); document.querySelector(`#view-tabs [data-v="${state.view}"]`).focus(); } });
+    const q = document.getElementById("q");
+    if (q) q.addEventListener("input", () => { state.q = q.value; const pos = q.selectionStart; render(); const n = document.getElementById("q"); n.focus(); n.setSelectionRange(pos, pos); });
+    panel.querySelectorAll("[data-sort]").forEach((b) => b.addEventListener("click", () => {
+      const col = b.dataset.sort;
+      state.sort = { col, dir: state.sort.col === col && state.sort.dir === (col === "pos" ? "ascending" : "descending") ? (col === "pos" ? "descending" : "ascending") : (col === "pos" ? "ascending" : "descending") };
+      render();
+      document.querySelector(`[data-sort="${col}"]`).focus();
+    }));
+    syncUrl();
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gazas — mobilus vaizdas</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<style>
+  body { margin: 0; min-height: 100vh; background: #e4e4e4; display: grid; place-items: start center; padding: 32px 0; }
+  iframe { width: 390px; height: 844px; border: 0; border-radius: 28px; background: #fff; box-shadow: 0 0 0 10px #111, 0 24px 60px rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+  <iframe title="Mobilus vaizdas, 390 px"></iframe>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const page = /^[\w-]+\.html(\?[\w=&,-]*)?$/.test(q.get("p") || "") ? q.get("p") : "improved.html";
+    const frame = document.querySelector("iframe");
+    frame.src = page + (page.includes("?") ? "&" : "?") + "shot";
+    const h = q.get("h");
+    if (h) Object.assign(frame.style, { height: h + "px", borderRadius: 0, boxShadow: "none" });
+  </script>
+</body>
+</html>

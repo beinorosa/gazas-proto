@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trackday ir atviri startai — Gazas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Schibsted+Grotesk:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<link rel="stylesheet" href="site.css?v=20261027z">
+<style>
+  .page-head { padding-top: 32px; }
+  .crumbs { padding-top: 24px; }
+  .page-head .lead-line {
+    margin-top: 8px; font-size: 18px; line-height: 28px; color: var(--text-secondary); max-width: 58ch;
+  }
+
+  .toolbar {
+    position: sticky; top: 112px; z-index: 20; margin-top: 24px; padding: 12px 0;
+    background: var(--bg-primary); display: grid; gap: 10px;
+  }
+  .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .toolbar .segmented { width: auto; }
+  .toolbar .segmented button { padding: 0 16px; flex: none; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; display: inline-flex; align-items: center; gap: 8px; }
+  .chip .sw { width: 10px; height: 10px; border-radius: 50%; }
+  .count { margin-left: auto; font-size: 14px; color: var(--text-tertiary); }
+  .reset { border: 0; background: none; color: var(--accent-text); font-weight: 600; font-size: 15px; cursor: pointer; padding: 6px 0; }
+  .reset[hidden] { display: none; }
+  .filter-select {
+    min-height: 36px; padding: 0 44px 0 16px; border: 1px solid var(--border-primary); border-radius: 9999px;
+    background-color: #fff;
+    background-image: url("assets/chevron-down-sm.svg");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 14px 14px;
+    font: 600 15px/20px var(--body); color: var(--text-secondary); cursor: pointer;
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  }
+  .filter-select::-ms-expand { display: none; }
+
+  .td-main-wrap { padding: 8px 0 0; }
+  .td-list { padding: 0 0 48px; display: grid; gap: 12px; }
+  .td {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 20px;
+    padding: 18px 18px 18px 20px; background: #fff; border-radius: var(--rounded-sm);
+    box-shadow: var(--shadow-card); border-left: 3px solid var(--c);
+    scroll-margin-top: 180px; transition: box-shadow var(--dur) var(--ease-out);
+  }
+  .td:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, .12); }
+  .td.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0% { background: color-mix(in srgb, var(--accent) 12%, #fff); } 100% { background: #fff; } }
+  .td .date {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; gap: 2px;
+  }
+  .td .days { font: 700 22px/26px var(--heading); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .td .mon { font: 700 12px/16px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); }
+  .td .wd { font-size: 13px; color: var(--text-tertiary); }
+  .td-main { display: grid; gap: 6px; align-content: center; min-width: 0; }
+  .td-top { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .td-type {
+    font: 700 12px/16px var(--body); letter-spacing: .05em; text-transform: uppercase;
+    color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff);
+    padding: 4px 8px; border-radius: var(--rounded-xs);
+  }
+  .td-level { font-size: 14px; color: var(--text-tertiary); }
+  .td-name { font: 700 20px/26px var(--heading); margin: 0; }
+  .td-place { font-size: 15px; color: var(--text-secondary); margin: 0; }
+  .td-blurb { font-size: 15px; line-height: 22px; color: var(--text-secondary); margin: 2px 0 0; max-width: 62ch; }
+  .td-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 4px;
+    font-size: 14px; color: var(--text-tertiary);
+  }
+  .td-meta strong { color: var(--text-secondary); font-weight: 600; }
+  .td-side {
+    display: grid; gap: 10px; justify-items: end; align-content: center; min-width: 140px;
+  }
+  .td-price { font: 700 20px/24px var(--heading); text-align: right; }
+  .td-spots { font-size: 14px; color: var(--text-tertiary); text-align: right; }
+  .td-spots.low { color: var(--accent-text); font-weight: 600; }
+  .td-side .btn { min-height: 36px; padding: 0 14px; font-size: 14px; }
+  .empty { padding: 48px 8px; color: var(--text-secondary); }
+
+  .month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .month-nav h2 { font: 700 24px/30px var(--heading); min-width: 200px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg-tertiary); display: grid; place-items: center; cursor: pointer; }
+  .icon-btn img { width: 16px; height: 16px; }
+  .icon-btn.prev img { transform: scaleX(-1); }
+  .month-nav .today-btn { margin-left: auto; }
+  .grid-month {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px; background: var(--border-secondary); border-radius: var(--rounded-sm); overflow: hidden;
+  }
+  .grid-month .wd-h { background: var(--bg-tertiary); padding: 8px 10px; font: 700 12px/16px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); }
+  .cell { background: #fff; min-height: 108px; padding: 8px; display: grid; align-content: start; gap: 4px; }
+  .cell.out { background: #fafafa; }
+  .cell.out .num { color: #aaa; }
+  .cell .num { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cell.today .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; }
+  .pill {
+    display: block; width: 100%; text-align: left; border: 0; cursor: pointer;
+    padding: 3px 6px; border-radius: 3px; background: color-mix(in srgb, var(--c) 12%, #fff);
+    border-left: 3px solid var(--c); font-size: 13px; line-height: 17px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pill:hover { background: color-mix(in srgb, var(--c) 22%, #fff); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; margin-bottom: 48px; font-size: 14px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); }
+
+  .td-help {
+    margin: 8px 0 56px; padding: 24px; background: #fff; border-radius: var(--rounded-sm);
+    box-shadow: var(--shadow-card); display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;
+  }
+  .td-help h2 { font: 700 24px/30px var(--heading); margin: 0 0 8px; }
+  .td-help p { font-size: 16px; line-height: 24px; color: var(--text-secondary); margin: 0; }
+  .td-help ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--text-secondary); font-size: 15px; line-height: 22px; }
+
+  @media (max-width: 900px) {
+    .td { grid-template-columns: 68px minmax(0, 1fr); }
+    .td-side { grid-column: 2; justify-items: start; min-width: 0; margin-top: 8px; }
+    .td-price, .td-spots { text-align: left; }
+    .td-help { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .page-head { padding-top: 8px; }
+    .page-head h1 { font-size: 30px; line-height: 36px; }
+    .toolbar { top: 100px; }
+    .view-switch { display: none; }
+    .td { gap: 0 12px; padding: 14px 14px 14px 16px; }
+    .td .days { font-size: 18px; line-height: 22px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Pereiti prie turinio</a>
+<div data-site-header data-active="trackday" data-series-links="home"></div>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Naršymo kelias"><ol class="crumbs"><li><a href="improved.html">Pradžia</a></li><li><span aria-current="page">Trackday</span></li></ol></nav>
+    <div class="page-head">
+      <div>
+        <h1>Trackday ir atviri startai</h1>
+        <p class="lead-line">Raskite dienas, kuriose gali dalyvauti beveik kiekvienas – trackday, kartingas, drift intro, ralio mokykla ir patirtys su instruktoriumi.</p>
+      </div>
+    </div>
+
+    <div class="toolbar" role="search" aria-label="Trackday filtrai">
+      <div class="toolbar-row">
+        <div class="segmented view-switch" role="group" aria-label="Vaizdas">
+          <button type="button" aria-pressed="true" data-view="list">Sąrašas</button>
+          <button type="button" aria-pressed="false" data-view="month">Mėnuo</button>
+        </div>
+        <label class="sr-only" for="f-region">Regionas</label>
+        <select class="filter-select" id="f-region"></select>
+        <label class="sr-only" for="f-level">Lygis</label>
+        <select class="filter-select" id="f-level">
+          <option value="">Visi lygiai</option>
+          <option value="Visiems">Visiems</option>
+          <option value="Pradedantiesiems">Pradedantiesiems</option>
+          <option value="Vidutinis">Vidutinis</option>
+        </select>
+        <button class="reset" id="reset" type="button" hidden>Išvalyti</button>
+        <p class="count" id="count" aria-live="polite"></p>
+      </div>
+      <div class="chips" role="group" aria-label="Tipas" id="type-chips"></div>
+    </div>
+
+    <div class="td-main-wrap">
+      <div class="td-list" id="list-view"></div>
+      <div id="month-view" hidden>
+        <div class="month-nav">
+          <button class="icon-btn prev" id="m-prev" type="button" aria-label="Ankstesnis mėnuo"><img src="assets/chevron-right.svg" alt=""></button>
+          <h2 id="m-title" aria-live="polite"></h2>
+          <button class="icon-btn" id="m-next" type="button" aria-label="Kitas mėnuo"><img src="assets/chevron-right.svg" alt=""></button>
+          <button class="btn btn-ghost today-btn" id="m-today" type="button">Šiandien</button>
+        </div>
+        <div class="grid-month" id="m-grid"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+
+    <section class="td-help" aria-labelledby="help-title">
+      <div>
+        <h2 id="help-title">Kaip tai veikia?</h2>
+        <p>Šis įrankis surenka atvirus startus Lietuvoje – ten, kur nereikia varžybų licencijos ar komandos. Pasirinkite tipą, regioną ir lygį, tada registruokitės pas organizatorių.</p>
+      </div>
+      <ul>
+        <li>Daugumoje renginių užtenka vairuotojo pažymėjimo arba amžiaus limito.</li>
+        <li>Nuoma, šalmas ir instruktažas dažnai įskaičiuoti – tikrinkite kortelėje.</li>
+        <li>Likusios vietos atnaujinamos redakcijos; galutinį patvirtinimą duoda organizatorius.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<div data-site-footer></div>
+<script src="data.js?v=20261027z"></script>
+<script src="site.js?v=20261027ab"></script>
+<script>
+  const G = window.GAZAS;
+  const { fmt } = G;
+  const params = new URLSearchParams(location.search);
+  const state = {
+    view: params.get("v") === "month" ? "month" : "list",
+    types: new Set((params.get("t") || "").split(",").filter((k) => G.TRACKDAY_TYPES[k])),
+    region: params.get("r") || "",
+    level: params.get("l") || "",
+    month: new Date(2026, 10, 1),
+  };
+
+  const items = G.TRACKDAYS.map((e) => ({
+    ...e,
+    typeMeta: G.TRACKDAY_TYPES[e.type],
+    from: fmt.d(e.start),
+    to: new Date(fmt.d(e.end).getTime() + 86399e3),
+  })).sort((a, b) => a.from - b.from);
+
+  const regions = [...new Set(items.map((e) => e.region))].sort((a, b) => a.localeCompare(b, "lt"));
+  const regionSel = document.getElementById("f-region");
+  regionSel.innerHTML = `<option value="">Visi regionai</option>${regions.map((r) => `<option value="${r}">${r}</option>`).join("")}`;
+  regionSel.value = state.region;
+  document.getElementById("f-level").value = state.level;
+
+  const chips = document.getElementById("type-chips");
+  chips.innerHTML = Object.entries(G.TRACKDAY_TYPES).map(([k, t]) =>
+    `<button class="chip" type="button" data-t="${k}" aria-pressed="${state.types.has(k)}"><span class="sw" style="background:${t.color}"></span>${t.name}</button>`
+  ).join("");
+
+  const weekStart = (d) => {
+    const x = new Date(d); x.setHours(0, 0, 0, 0);
+    x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+    return x;
+  };
+
+  const visible = () => {
+    const now = G.now();
+    return items.filter((e) =>
+      (!state.types.size || state.types.has(e.type)) &&
+      (!state.region || e.region === state.region) &&
+      (!state.level || e.level === state.level) &&
+      (state.view === "month" || e.to >= now)
+    );
+  };
+
+  const syncUrl = () => {
+    const p = new URLSearchParams();
+    if (state.view !== "list") p.set("v", state.view);
+    if (state.types.size) p.set("t", [...state.types].join(","));
+    if (state.region) p.set("r", state.region);
+    if (state.level) p.set("l", state.level);
+    if (params.has("shot")) p.set("shot", "");
+    const q = p.toString().replace("shot=", "shot");
+    history.replaceState(null, "", `${location.pathname}${q ? "?" + q : ""}${location.hash}`);
+  };
+
+  const dayRange = (e) => e.start === e.end ? `${e.from.getDate()}` : `${e.from.getDate()}–${e.to.getDate()}`;
+  const monRange = (e) => e.from.getMonth() === e.to.getMonth()
+    ? fmt.MON_SHORT[e.from.getMonth()]
+    : `${fmt.MON_SHORT[e.from.getMonth()]}–${fmt.MON_SHORT[e.to.getMonth()]}`;
+
+  function card(e) {
+    const low = e.spots <= 10;
+    return `<article class="td" id="${e.id}" style="--c:${e.typeMeta.color}" aria-labelledby="${e.id}-name">
+      <div class="date" aria-label="${e.start}">
+        <span class="days">${dayRange(e)}</span>
+        <span class="mon">${monRange(e)}</span>
+        <span class="wd">${fmt.DAYS_SHORT[e.from.getDay()]}${e.start !== e.end ? `–${fmt.DAYS_SHORT[e.to.getDay()]}` : ""}</span>
+      </div>
+      <div class="td-main">
+        <div class="td-top">
+          <span class="td-type">${e.typeMeta.name}</span>
+          <span class="td-level">${e.level}</span>
+        </div>
+        <h2 class="td-name" id="${e.id}-name">${e.name}</h2>
+        <p class="td-place">${e.place} · ${e.region}</p>
+        <p class="td-blurb">${e.blurb}</p>
+        <div class="td-meta">
+          <span>Laikas: <strong>${e.time}</strong></span>
+          <span>Technika: <strong>${e.vehicle}</strong></span>
+          <span>Org.: <strong>${e.org}</strong></span>
+        </div>
+      </div>
+      <div class="td-side">
+        <span class="td-price">${e.price}</span>
+        <span class="td-spots${low ? " low" : ""}">${low ? `Liko ${e.spots} viet.` : `${e.spots} vietų`}</span>
+        <a class="btn btn-primary" href="#${e.id}">Registruotis</a>
+      </div>
+    </article>`;
+  }
+
+  function renderList(list) {
+    const el = document.getElementById("list-view");
+    el.innerHTML = list.length
+      ? list.map(card).join("")
+      : `<div class="empty"><p><strong>Pagal filtrus atvirų startų nerasta.</strong></p><p>Pabandykite kitą regioną, tipą ar lygį.</p></div>`;
+  }
+
+  function renderMonth(list) {
+    const m = state.month;
+    const now = G.now();
+    document.getElementById("m-title").textContent = `${fmt.MONTHS_NOM[m.getMonth()]} ${m.getFullYear()}`;
+    const first = weekStart(m);
+    const cells = [];
+    ["Pr", "An", "Tr", "Kt", "Pn", "Št", "Sk"].forEach((d) => cells.push(`<div class="wd-h" aria-hidden="true">${d}</div>`));
+    for (let i = 0; i < 42; i++) {
+      const day = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i);
+      if (i >= 35 && day.getMonth() !== m.getMonth()) break;
+      const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+      const evs = list.filter((e) => e.from <= dayEnd && e.to >= day);
+      const today = day.toDateString() === now.toDateString();
+      cells.push(`<div class="cell${day.getMonth() !== m.getMonth() ? " out" : ""}${today ? " today" : ""}">
+        <span class="num"${today ? ' aria-label="Šiandien"' : ""}>${day.getDate()}</span>
+        ${evs.map((e) => `<button class="pill" type="button" style="--c:${e.typeMeta.color}" data-open="${e.id}" title="${e.typeMeta.name}: ${e.name}"><b>${e.typeMeta.name}</b> ${e.name}</button>`).join("")}
+      </div>`);
+    }
+    document.getElementById("m-grid").innerHTML = cells.join("");
+    const present = [...new Set(list.map((e) => e.type))];
+    document.getElementById("legend").innerHTML = present.map((k) => {
+      const t = G.TRACKDAY_TYPES[k];
+      return `<span><i style="--c:${t.color}"></i>${t.name}</span>`;
+    }).join("");
+  }
+
+  function openEvent(id) {
+    state.view = "list";
+    render();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ block: "start" });
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    history.replaceState(null, "", `${location.pathname}${location.search}#${id}`);
+  }
+
+  function render() {
+    const list = visible();
+    document.querySelectorAll(".view-switch button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
+    chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", state.types.has(c.dataset.t)));
+    document.getElementById("count").textContent = `${list.length} ${list.length === 1 ? "renginys" : "renginiai"}`;
+    document.getElementById("reset").hidden = !state.types.size && !state.region && !state.level;
+
+    const listEl = document.getElementById("list-view");
+    const monthEl = document.getElementById("month-view");
+    const showList = state.view === "list";
+    listEl.hidden = !showList;
+    monthEl.hidden = showList;
+    if (showList) renderList(list);
+    else renderMonth(list);
+    syncUrl();
+  }
+
+  chips.addEventListener("click", (e) => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const k = b.dataset.t;
+    state.types.has(k) ? state.types.delete(k) : state.types.add(k);
+    render();
+  });
+  regionSel.addEventListener("change", (e) => { state.region = e.target.value; render(); });
+  document.getElementById("f-level").addEventListener("change", (e) => { state.level = e.target.value; render(); });
+  document.getElementById("reset").addEventListener("click", () => {
+    state.types.clear(); state.region = ""; state.level = "";
+    regionSel.value = ""; document.getElementById("f-level").value = "";
+    render();
+  });
+  document.querySelectorAll(".view-switch button").forEach((b) => b.addEventListener("click", () => {
+    state.view = b.dataset.view; render();
+  }));
+  const shiftMonth = (n) => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + n, 1); render(); };
+  document.getElementById("m-prev").addEventListener("click", () => shiftMonth(-1));
+  document.getElementById("m-next").addEventListener("click", () => shiftMonth(1));
+  document.getElementById("m-today").addEventListener("click", () => { state.month = new Date(2026, 10, 1); render(); });
+  document.getElementById("m-grid").addEventListener("click", (e) => {
+    const p = e.target.closest("[data-open]"); if (!p) return;
+    openEvent(p.dataset.open);
+  });
+
+  render();
+  if (location.hash.length > 1) openEvent(decodeURIComponent(location.hash.slice(1)));
+</script>
+</body>
+</html>

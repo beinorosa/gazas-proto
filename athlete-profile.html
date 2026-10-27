@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sportininko profilis — Gazas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Schibsted+Grotesk:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<link rel="stylesheet" href="site.css?v=20261027z">
+<style>
+  html { scroll-padding-top: 180px; }
+  .crumbs { padding-top: 24px; }
+  .intro { display: grid; grid-template-columns: 280px minmax(0, 1fr); margin-top: 16px; overflow: hidden; }
+  .intro .img-frame { border-radius: 0; box-shadow: none; height: 100%; min-height: 350px; }
+  .intro .img-frame img { object-position: center 20%; }
+  .intro-body { padding: 28px 32px; display: grid; gap: 16px; align-content: start; }
+  .intro-body h1 { font: 700 44px/48px var(--heading); letter-spacing: -.015em; }
+  .intro-body .lede { font-size: 19px; line-height: 28px; color: var(--text-secondary); max-width: 62ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .section-nav { position: sticky; top: 112px; z-index: 20; margin-top: 24px; background: var(--bg-primary); border-bottom: 1px solid var(--border-secondary); overflow-x: auto; scrollbar-width: none; }
+  .section-nav .tabs { width: max-content; }
+  .profile-layout { padding-top: 32px; }
+  .block + .block { margin-top: 48px; }
+  .block h2 { font: 700 28px/34px var(--heading); margin-bottom: 16px; }
+  .block h3 { font: 700 20px/26px var(--heading); margin: 28px 0 12px; }
+  .block .prose h2 { font-size: 22px; line-height: 28px; margin-top: 28px; }
+  .block .prose { font-size: 18px; line-height: 29px; }
+
+  .raid { display: grid; }
+  .raid li { display: grid; grid-template-columns: 56px 1fr 120px; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border-secondary); font-size: 15px; }
+  .raid .yr { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .raid .res { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .raid .res.nf { color: var(--accent-text); }
+  .raid .bar { height: 10px; border-radius: 5px; }
+  .titles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .timeline .event:last-child { border-bottom: 0; }
+  .side-rail .panel { padding: 20px; }
+  .side-rail .panel h2 { font: 700 20px/26px var(--heading); margin-bottom: 4px; }
+  .note { margin-top: 12px; }
+  .block > .more-link { margin-top: 16px; }
+  .similar .hero { color: #fff; }
+
+  @media (max-width: 1100px) {
+    .layout-rail { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .side-rail.sticky { display: contents; }
+    .side-rail .panel { order: -1; }
+  }
+  @media (max-width: 760px) {
+    .intro { grid-template-columns: 1fr; }
+    .intro .img-frame { min-height: 0; aspect-ratio: 4 / 3; }
+    .intro-body { padding: 20px 16px; }
+    .intro-body h1 { font-size: 32px; line-height: 36px; }
+    .intro-body .lede { font-size: 17px; line-height: 25px; }
+    .section-nav { top: 100px; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .raid li { grid-template-columns: 44px 1fr 96px; gap: 10px; }
+    .similar.grid4 { grid-template-columns: 1fr 1fr; }
+    .similar .hero { grid-template-columns: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Pereiti prie turinio</a>
+<div data-site-header data-active="sportininkai"></div>
+
+<main id="main" class="wrap">
+  <nav aria-label="Naršymo kelias"><ol class="crumbs" id="crumbs"></ol></nav>
+  <header class="panel intro" id="intro"></header>
+  <nav class="section-nav" aria-label="Profilio skyriai"><div class="tabs" id="section-nav"></div></nav>
+  <div class="layout-rail profile-layout">
+    <div id="content"></div>
+    <aside class="side-rail sticky" id="rail" aria-label="Faktai"></aside>
+  </div>
+  <section class="section" aria-labelledby="similar-title">
+    <div class="section-head"><h2 id="similar-title">Kiti Lietuvos sportininkai</h2><a class="more-link" href="ratings.html?s=top">Gazas TOP 10 ${""}</a></div>
+    <div class="grid4 similar" id="similar"></div>
+  </section>
+</main>
+
+<div data-site-footer></div>
+<script src="data.js?v=20261027z"></script>
+<script src="site.js?v=20261027ab"></script>
+<script>
+  const G = window.GAZAS;
+  const { fmt } = G;
+  const p = G.athleteById[new URLSearchParams(location.search).get("id")] || G.ATHLETES[0];
+  const topicHref = `athlete.html?id=${p.id}`;
+  document.title = `${p.name}: profilis — Gazas`;
+  document.querySelector(".section-head .more-link").innerHTML = `Gazas TOP 10 ${G.arrowRed}`;
+
+  document.getElementById("crumbs").innerHTML = `<li><a href="improved.html">Pradžia</a></li><li><a href="ratings.html?s=top">Sportininkai</a></li><li><a href="${topicHref}">${p.name}</a></li><li><span aria-current="page">Profilis</span></li>`;
+
+  const s = p.stats;
+  document.getElementById("intro").innerHTML = `
+    <div class="img-frame"><img src="assets/${p.img}" alt="${p.name}"></div>
+    <div class="intro-body">
+      <p class="eyebrow">${p.disc}</p>
+      <h1>${p.name}</h1>
+      <p class="lede">${p.lede}</p>
+      <div class="stat-row">
+        <div class="stat"><span class="eyebrow">Startai</span><span class="big">${s.starts}</span></div>
+        <div class="stat"><span class="eyebrow">Pergalės</span><span class="big">${s.wins}</span></div>
+        <div class="stat"><span class="eyebrow">Podiumai</span><span class="big">${s.podiums}</span></div>
+        <div class="stat"><span class="eyebrow">Titulai</span><span class="big">${s.titles}</span></div>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="${topicHref}">Naujienos apie ${p.acc}</a>
+        <button class="btn btn-ghost" type="button" id="follow" aria-pressed="false">Sekti</button>
+      </div>
+    </div>`;
+  const follow = document.getElementById("follow");
+  follow.addEventListener("click", () => {
+    const on = follow.getAttribute("aria-pressed") !== "true";
+    follow.setAttribute("aria-pressed", on);
+    follow.textContent = on ? "Sekate" : "Sekti";
+  });
+
+  /* Sections */
+  const sections = [
+    ["apzvalga", "Apžvalga", `<div class="prose">${p.bio.map(([t, x]) => t === "h2" ? `<h2>${x}</h2>` : `<p>${x}</p>`).join("")}<h2>Ar žinojote?</h2><ul>${p.trivia.map((x) => `<li>${x}</li>`).join("")}</ul></div>`],
+    ["statistika", "Statistika", `
+      <div class="table-wrap"><table class="st">
+        <caption class="sr-only">Rezultatai pagal sezonus</caption>
+        <thead><tr><th scope="col">Sezonas</th><th scope="col">Čempionatas</th><th scope="col">Komanda</th><th scope="col" class="num">Vieta</th><th scope="col" class="num">Startai</th><th scope="col" class="num">Perg.</th><th scope="col" class="num">Podiumai</th></tr></thead>
+        <tbody>${p.seasons.map(([y, ser, team, pos, starts, wins, pods]) => `<tr><td class="pos">${y}</td><td>${ser}</td><td>${team}</td><td class="num pts">${pos <= 3 ? `<span class="r p${pos}">${pos}</span>` : pos}</td><td class="num">${starts}</td><td class="num">${wins}</td><td class="num">${pods}</td></tr>`).join("")}</tbody>
+      </table></div>
+      ${p.raid.length ? (() => {
+        const worst = Math.max(...p.raid.map((r) => (typeof r[1] === "number" ? r[1] : 0)), 30);
+        return `<h3>Dakaro rezultatai</h3>
+        <ol class="raid">${p.raid.map(([y, pos, cls]) => `<li><span class="yr">${y}</span>
+          <span class="bar" role="img" aria-label="${pos === "NF" ? "Nefinišavo" : `${pos} vieta`}"><i style="width:${pos === "NF" ? 0 : Math.max(6, (1 - (pos - 1) / worst) * 100)}%"></i></span>
+          <span class="res${pos === "NF" ? " nf" : ""}">${pos === "NF" ? "Nefinišavo" : `${pos} vieta`}, ${cls}</span></li>`).join("")}</ol>
+        <p class="note">Ilgesnė juosta reiškia aukštesnę vietą.</p>`;
+      })() : ""}`],
+    ["karjera", "Karjera", `<div class="events timeline">${p.timeline.map(([y, t]) => `<div class="event"><time>${y}</time><p class="name">${t}</p></div>`).join("")}</div>`],
+    ["titulai", "Titulai", `<div class="titles">${p.titles.map(([y, t]) => `<div class="stat"><span class="big">${y}</span><span class="who">${t}</span></div>`).join("")}</div>`],
+    ["naujienos", "Naujienos", `<div class="hub-side">${p.articles.slice(0, 4).map((a) => G.card(a)).join("")}</div><a class="more-link" href="${topicHref}">Visos naujienos apie ${p.acc} ${G.arrowRed}</a>`],
+  ];
+  document.getElementById("content").innerHTML = sections.map(([id, title, html]) => `<section class="block" id="${id}" aria-labelledby="${id}-h"><h2 id="${id}-h">${title}</h2>${html}</section>`).join("");
+  document.getElementById("section-nav").innerHTML = sections.map(([id, title], i) => `<a href="#${id}"${i === 0 ? ' aria-current="true"' : ""}>${title}</a>`).join("");
+
+  const links = [...document.querySelectorAll("#section-nav a")];
+  const setCurrent = (id) => links.forEach((a) => (a.getAttribute("href") === `#${id}` ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setCurrent(e.target.id)), { rootMargin: "-200px 0px -60% 0px" });
+  document.querySelectorAll(".block").forEach((b) => io.observe(b));
+
+  /* Rail */
+  const ev = p.next && G.eventById[p.next];
+  const cur = p.current;
+  document.getElementById("rail").innerHTML = `
+    <section class="panel">
+      <h2>Faktai</h2>
+      <dl class="facts">${p.facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}<div><dt>Geriausias</dt><dd>${p.best}</dd></div>${p.top ? `<div><dt>Gazas TOP 10</dt><dd><a class="more-link" href="ratings.html?s=top">${p.top} vieta</a></dd></div>` : ""}</dl>
+      <p class="note">Profilio duomenys yra demonstraciniai. Prieš publikuojant juos tikrina redakcija.</p>
+    </section>
+    ${cur ? `
+    <section class="rail-block">
+      <h2>${cur.st.label} 2026</h2>
+      <div class="stat" style="--c:${G.SERIES[p.standing.series].color}">
+        <span class="eyebrow">${cur.d.pos} vieta čempionate</span>
+        <span class="big">${cur.d.points}<small>tšk.</small></span>
+        <span class="form" aria-label="Paskutiniai rezultatai">${cur.d.form.map((x) => `<span class="r ${x === "NF" ? "nf" : x <= 3 ? `p${x}` : cur.st.pts(x) ? "pts-r" : ""}">${x}</span>`).join("")}</span>
+      </div>
+      <a class="more-link" href="ratings.html?s=${p.standing.series}">Visa lentelė ${G.arrowRed}</a>
+    </section>` : ""}
+    ${ev ? `
+    <section class="rail-block">
+      <h2>Artimiausias startas</h2>
+      <a class="next-ev hover-title" href="calendar.html#${ev.id}"><span class="kicker">${G.SERIES[ev.series].name}</span><span class="name t">${ev.name}</span><span class="when">${fmt.range(ev.start, ev.end)}, ${ev.place}</span></a>
+    </section>` : ""}`;
+
+  document.getElementById("similar").innerHTML = G.ATHLETES.filter((x) => x.id !== p.id).slice(0, 4).map((x) => `
+    <a class="hero" href="athlete.html?id=${x.id}"><img src="assets/${x.img}" alt=""><span class="hero-tag">${x.disc}</span><span class="hero-text"><span class="hero-name"><span>${x.first}</span><span>${x.last}</span></span></span></a>`).join("");
+</script>
+</body>
+</html>

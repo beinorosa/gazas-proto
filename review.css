@@ -1,0 +1,23 @@
+.review {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: rgba(17, 17, 17, .92);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .25);
+  font: 500 14px/20px "Source Sans 3", system-ui, sans-serif;
+}
+.review a {
+  padding: 8px 16px;
+  border-radius: 9999px;
+  color: #ddd;
+  text-decoration: none;
+}
+.review a[aria-current] { background: #fff; color: #111; }
+.review a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+html.shot .review { display: none; }

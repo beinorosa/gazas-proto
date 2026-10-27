@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Gazas — Figma 1:1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500&family=Inter:wght@400;500&family=Schibsted+Grotesk:wght@700&family=Source+Sans+3:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="review.css?v=20261027z">
+<script>if (location.search.includes("shot")) document.documentElement.classList.add("shot");</script>
+<style>
+  :root {
+    --bg-primary: #f7f7f7;
+    --bg-secondary: #fff;
+    --bg-tertiary: #f3f3f3;
+    --bg-inverse: #0a0a0a;
+    --border-primary: #ccc;
+    --border-secondary: #e2e2e2;
+    --text-primary: #111;
+    --text-secondary: #444;
+    --text-tertiary: #6b6b6b;
+    --text-disabled: #aaa;
+    --text-accent: #d0021b;
+    --text-link-critical: #a80015;
+    --rounded-sm: 6px;
+    --rounded-xs: 3px;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .1);
+    --heading: "Schibsted Grotesk", sans-serif;
+    --body: "Source Sans 3", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    width: 1400px;
+    margin: 0 auto;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--body);
+  }
+  p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; }
+
+  /* Header */
+  .header {
+    height: 69px;
+    padding: 15px 24px;
+    background: var(--bg-inverse);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-left { display: flex; align-items: center; gap: 24px; }
+  .icon24 { width: 24px; height: 24px; display: grid; place-items: center; }
+  .icon24 .bars { width: 19.2px; height: 21.94px; margin-top: 1px; }
+  .nav { display: flex; }
+  .nav a {
+    padding: 8px;
+    border-radius: var(--rounded-sm);
+    font-size: 14px;
+    line-height: 21px;
+    font-weight: 500;
+    color: var(--text-disabled);
+  }
+  .nav a[aria-current] { color: #fff; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .search {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px;
+    font-size: 14px; line-height: 21px; font-weight: 500;
+    color: #fff;
+  }
+  .search span.ico { width: 16px; height: 16px; display: grid; place-items: center; }
+  .btn-primary {
+    min-height: 34px;
+    padding: 9px 21px;
+    border-radius: 9999px;
+    background: var(--text-accent);
+    color: #fff;
+    font-size: 14px; line-height: 21px; font-weight: 700;
+  }
+
+  .quick {
+    height: 35px;
+    padding: 8px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-secondary);
+    display: flex; justify-content: center; gap: 16px;
+  }
+  .quick a { font-size: 12px; line-height: 18px; font-weight: 500; }
+
+  .wrap { width: 1168px; margin: 0 auto; }
+
+  /* Top grid */
+  .top { padding-top: 32px; padding-bottom: 32px; }
+  .grid12 {
+    display: grid;
+    grid-template-columns: 576px 280px 280px;
+    gap: 16px;
+    align-items: start;
+  }
+  .lead {
+    position: relative;
+    height: 532px;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--rounded-sm);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .lead img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lead::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,0));
+  }
+  .lead-text { position: relative; z-index: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; color: #fff; }
+  .meta { display: flex; gap: 8px; align-items: center; font-size: 12px; line-height: 18px; }
+  .meta b { font-weight: 500; }
+  .meta span { color: var(--text-tertiary); }
+  .lead .meta { font-size: 14px; line-height: 21px; }
+  .lead .meta span { color: #fff; }
+  .lead h1 { margin: 0; font-family: var(--heading); font-size: 28px; line-height: 30px; font-weight: 700; }
+  .lead .dek { font-size: 16px; line-height: 24px; }
+
+  .stack2 { display: flex; flex-direction: column; gap: 16px; }
+  .card { display: flex; flex-direction: column; gap: 12px; }
+  .card .img {
+    aspect-ratio: 200 / 130;
+    border: 1px solid #f2f2f2;
+    border-radius: var(--rounded-sm);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    background: #fff;
+  }
+  .card .img img { width: 100%; height: 100%; object-fit: cover; }
+  .card .img.contain img { object-fit: contain; }
+  .card-text { padding: 0 12px; display: flex; flex-direction: column; gap: 4px; }
+  .card-title { font-size: 14px; line-height: 21px; font-weight: 700; }
+
+  .rail {
+    background: var(--bg-tertiary);
+    border-radius: var(--rounded-sm);
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.1));
+    padding: 12px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .rail-head { display: flex; flex-direction: column; gap: 4px; }
+  .rail-title { display: flex; justify-content: space-between; font-size: 12px; line-height: 18px; }
+  .rail-title b { font-weight: 500; }
+  .rail-title a { color: var(--text-accent); }
+  .mini-dd { display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 18px; font-weight: 500; color: var(--text-secondary); }
+  .events { display: flex; flex-direction: column; gap: 8px; }
+  .events hr { margin: 0; border: 0; border-top: 1px solid var(--border-secondary); }
+  .event { height: 57px; overflow: hidden; }
+  .event-top { display: flex; justify-content: space-between; align-items: center; }
+  .event-series { font-size: 10px; line-height: 15px; font-weight: 500; color: var(--text-accent); }
+  .event-time { font-size: 12px; line-height: 18px; font-weight: 500; color: var(--text-tertiary); }
+  .event-name { font-size: 14px; line-height: 21px; font-weight: 500; }
+  .event-place { font-size: 10px; line-height: 15px; }
+
+  /* News list */
+  .tabs-wrap { padding-bottom: 24px; padding-top: 24px; }
+  .tabs { display: inline-flex; border-bottom: 1px solid var(--border-secondary); }
+  .tabs button {
+    all: unset;
+    cursor: pointer;
+    padding: 12px 16px;
+    font-family: "Barlow", sans-serif;
+    font-size: 14px; line-height: 20px; font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tabs button[aria-selected="true"] { color: var(--text-accent); border-color: var(--text-accent); }
+  .list3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .row { display: flex; align-items: center; }
+  .row .thumb {
+    width: 140px; height: 91px; flex: none;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--rounded-xs);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .row .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .row .card-text { padding: 12px; }
+
+  /* Heroes */
+  .heroes {
+    position: relative;
+    height: 437px;
+    padding: 64px 116px;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #151515, #111);
+  }
+  .heroes-bg {
+    position: absolute; left: -276px; top: -187px; width: 1254px; height: 1254px;
+    mix-blend-mode: multiply; pointer-events: none;
+  }
+  .heroes-bg img { width: 100%; height: 100%; object-fit: cover; }
+  .section-title {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding-bottom: 32px;
+  }
+  .section-title h2 { margin: 0; font-family: var(--heading); font-size: 32px; line-height: 36px; font-weight: 700; }
+  .section-title a { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 21px; font-weight: 500; }
+  .heroes .section-title h2, .heroes .section-title a { color: #fff; }
+  .hero-row { position: relative; display: flex; gap: 8px; }
+  .hero {
+    position: relative;
+    flex: 1 0 0;
+    aspect-ratio: 156 / 200;
+    border-radius: var(--rounded-sm);
+    overflow: hidden;
+    display: flex; justify-content: center; align-items: flex-end;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.1));
+  }
+  .hero .base { position: absolute; height: 126%; left: -60.02%; top: -8%; width: 246.69%; max-width: none; }
+  .hero .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,0)); }
+  .hero-text { position: relative; z-index: 1; width: 156px; height: 200px; padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; }
+  .hero-name { font-size: 16px; line-height: 24px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .hero-series { font-size: 12px; line-height: 18px; color: #f7f7f7; }
+  .icon-btn {
+    position: absolute; right: -19px; top: 50%; transform: translateY(-50%);
+    width: 39px; height: 39px; border-radius: 9999px;
+    background: var(--bg-primary); border: 1px solid var(--border-primary);
+    display: grid; place-items: center;
+    cursor: pointer; z-index: 2;
+  }
+
+  /* Category sections */
+  .cat { padding: 32px 0; }
+  .cat .section-title a { color: var(--text-link-critical); }
+  .cat-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 32px 8px; }
+  .cat-grid .card:nth-child(-n+3) { grid-column: span 4; }
+  .cat-grid .card:nth-child(n+4) { grid-column: span 3; }
+  .chips { display: flex; gap: 8px; }
+  .chip {
+    height: 36px; padding: 7.5px 16px;
+    border: 1px solid var(--border-primary);
+    border-radius: 9999px;
+    background: #fff;
+    font-size: 14px; line-height: 21px;
+  }
+  .cat-2 .section-title { padding-top: 0; }
+
+  /* Footer */
+  .footer { background: #141415; padding: 64px 116px; font-family: "Inter", sans-serif; }
+  .disclaimer { font-size: 12px; line-height: 18px; color: #c8c9cb; padding-bottom: 24px; }
+  .disclaimer sup { font-size: 7.74px; }
+  .foot-row { border-top: 1px solid #4f5054; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .foot-left { display: flex; gap: 24px; font-size: 12px; line-height: 18px; color: #c8c9cb; }
+  .foot-left .copy { color: #b2b2b3; font-weight: 500; }
+  .foot-right { display: flex; align-items: center; gap: 40px; }
+  .pay { display: flex; gap: 4px; }
+  .pay span { width: 32px; height: 24px; display: grid; place-items: center; position: relative; }
+  .pay .discover img { position: absolute; }
+  .lang { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 21px; color: #f7f7f8; }
+</style>
+</head>
+<body>
+  <header class="header" data-node-id="16:2778">
+    <div class="header-left">
+      <span class="icon24"><img class="bars" src="assets/bars.svg" alt="Meniu"></span>
+      <span class="icon24"><img src="assets/15min.svg" alt="15min" width="24" height="24"></span>
+      <img src="assets/logo.svg" alt="Gazas" width="74" height="24">
+      <nav class="nav" aria-label="Pagrindinis">
+        <a href="#" aria-current="page">Auto Moto Sportas</a>
+        <a href="#">Renginių kalendorius</a>
+        <a href="#">Reitingai</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a class="search" href="#">Paieška <span class="ico"><img src="assets/search.svg" alt="" width="12.8" height="12.8"></span></a>
+      <a class="btn-primary" href="#">Prenumeruoti</a>
+    </div>
+  </header>
+
+  <div class="quick" data-node-id="16:2792">
+    <a href="#">Sportininkai</a>
+    <a href="#">Auto Rekomendacijos</a>
+    <a href="#">Paslaugos</a>
+  </div>
+
+  <section class="top wrap" data-node-id="20:5670">
+    <div class="grid12">
+      <article class="lead">
+        <img src="assets/lead-wec.png" alt="">
+        <div class="lead-text">
+          <div class="meta"><b>WEC</b><span>4h</span></div>
+          <h1>WEC Barcelona: Toyota scores dominant 1-2 to seal</h1>
+          <p class="dek">The Japanese constructor makes it four victories in seven races to re-establish itself as the WEC's benchmark</p>
+        </div>
+      </article>
+
+      <div class="stack2">
+        <article class="card">
+          <div class="img contain"><img src="assets/ferrari-drawing.png" alt=""></div>
+          <div class="card-text">
+            <div class="meta"><b>Formula 1</b><span>4h</span></div>
+            <p class="card-title">What Ferrari's changing with its biggest F1 upgrade of 2026...</p>
+          </div>
+        </article>
+        <article class="card">
+          <div class="img"><img src="assets/jos-verstappen.png" alt=""></div>
+          <div class="card-text">
+            <div class="meta"><b>Formula 1</b><span>4h</span></div>
+            <p class="card-title">Jos Verstappen was hyped like Max - until it all went wrong</p>
+          </div>
+        </article>
+      </div>
+
+      <aside class="rail" data-node-id="20:5676">
+        <div class="rail-head">
+          <div class="rail-title"><b>Šį savaitgalį</b><a href="#">Kalendorius</a></div>
+          <div class="mini-dd">Visi <img src="assets/chevron-down-sm.svg" alt="" width="16" height="16"></div>
+        </div>
+        <div class="events">
+          <div class="event"><div class="event-top"><span class="event-series">LARČ</span><span class="event-time">Vyksta</span></div><p class="event-name">Elektrėnų ralis, kvalifikacija</p><p class="event-place">Elektrėnai</p></div>
+          <hr>
+          <div class="event"><div class="event-top"><span class="event-series">BATCC</span><span class="event-time">Sekm. 21:00</span></div><p class="event-name">Palangos etapas</p><p class="event-place">Palanga</p></div>
+          <hr>
+          <div class="event"><div class="event-top"><span class="event-series">F1</span><span class="event-time">Sekm. 06:00</span></div><p class="event-name">Meksikos GP</p><p class="event-place">Mexico City</p></div>
+          <hr>
+          <div class="event"><div class="event-top"><span class="event-series">MotoGP</span><span class="event-time">Šešt. 09:10</span></div><p class="event-name">Australijos GP</p><p class="event-place">Phillip Island</p></div>
+          <hr>
+          <div class="event"><div class="event-top"><span class="event-series">WRC</span><span class="event-time">Šešt. 09:10</span></div><p class="event-name">Centrinės Europos ralis</p><p class="event-place">Passau</p></div>
+        </div>
+      </aside>
+    </div>
+
+    <div data-node-id="20:5967">
+      <div class="tabs-wrap">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true">Naujausi</button>
+          <button role="tab" aria-selected="false">Skaitomiausi</button>
+        </div>
+      </div>
+      <div class="list3">
+        <article class="row"><div class="thumb"><img src="assets/thumb-wec.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+        <article class="row"><div class="thumb"><img src="assets/thumb-wec.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+        <article class="row"><div class="thumb"><img src="assets/thumb-wec.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+        <article class="row"><div class="thumb"><img src="assets/thumb-wec.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+        <article class="row"><div class="thumb"><img src="assets/thumb-wec.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+        <article class="row"><div class="thumb"><img src="assets/thumb-track.png" alt=""></div><div class="card-text"><div class="meta"><b>WEC</b><span>4h</span></div><p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="heroes" data-node-id="16:2805">
+    <div class="heroes-bg"><img src="assets/heroes-bg.png" alt=""></div>
+    <div class="section-title">
+      <h2>Mūsų herojai</h2>
+      <a href="#">Visi sportininkai <img src="assets/arrow-right-white.svg" alt="" width="16" height="16"></a>
+    </div>
+    <div class="hero-row">
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><div class="hero-text"><p class="hero-name">Vaidotas ŽALA</p><p class="hero-series">WRC</p></div></a>
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><img class="photo" src="assets/hero-baciuska.png" alt=""><div class="hero-text"><p class="hero-name">Rokas Baciuška</p><p class="hero-series">WRC</p></div></a>
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><img class="photo" src="assets/hero-karklys.png" alt=""><div class="hero-text"><p class="hero-name">Jonas Karklys</p><p class="hero-series">WRC</p></div></a>
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><img class="photo" src="assets/hero-vanagas.png" alt=""><div class="hero-text"><p class="hero-name">Benediktas Vanagas</p><p class="hero-series">WRC</p></div></a>
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><img class="photo" src="assets/hero-gelaznikas.png" alt=""><div class="hero-text"><p class="hero-name">Arūnas Gelažnikas</p><p class="hero-series">WRC</p></div></a>
+      <a class="hero" href="#"><img class="base" src="assets/hero-zala.png" alt=""><img class="photo" src="assets/hero-norkunas.png" alt=""><div class="hero-text"><p class="hero-name">Tauras Norkūnas</p><p class="hero-series">WRC</p></div></a>
+      <button class="icon-btn" aria-label="Kiti"><img src="assets/chevron-right.svg" alt="" width="16" height="16"></button>
+    </div>
+  </section>
+
+  <section class="cat wrap" data-node-id="20:5080">
+    <div class="section-title">
+      <h2>Formula 1</h2>
+      <a href="#">Visos Formula 1 <img src="assets/arrow-right-red.svg" alt="" width="16" height="16"></a>
+    </div>
+    <div class="cat-grid" id="cat-a"></div>
+  </section>
+
+  <section class="cat cat-2 wrap" data-node-id="31:9712">
+    <div class="chips" id="chips"></div>
+    <div class="section-title">
+      <h2>Formula 1</h2>
+      <a href="#">Visos Formula 1 <img src="assets/arrow-right-red.svg" alt="" width="16" height="16"></a>
+    </div>
+    <div class="cat-grid" id="cat-b"></div>
+  </section>
+
+  <footer class="footer" data-node-id="20:4622">
+    <p class="disclaimer"><sup>1</sup>Please note that using NordVPN to bypass any regulatory in judicial measures, or for any illegal activities is strictly prohibited and violates our Terms of Service. Make sure you use NordVPN in compliance with all applicable laws and regulations, as well as the terms of any websites or services you access using NordVPN.</p>
+    <div class="foot-row">
+      <div class="foot-left">
+        <span class="copy">© 2026 Nord Security. All Rights Reserved</span>
+        <a href="#">Support Center</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Preferences</a>
+      </div>
+      <div class="foot-right">
+        <div class="pay">
+          <span class="discover"><img src="assets/pay-discover-fill.svg" alt=""><img src="assets/pay-discover.svg" alt="Discover"></span>
+          <span><img src="assets/pay-visa.svg" alt="Visa"></span>
+          <span><img src="assets/pay-mastercard.svg" alt="Mastercard"></span>
+          <span><img src="assets/pay-amex.svg" alt="Amex"></span>
+          <span><img src="assets/pay-maestro.svg" alt="Maestro"></span>
+          <span><img src="assets/pay-icon.svg" alt=""></span>
+        </div>
+        <div class="lang"><img src="assets/globe.svg" alt="" width="24" height="24"> English <img src="assets/chevron-down.svg" alt="" width="16" height="16"></div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  const card = () => `
+    <article class="card">
+      <div class="img"><img src="assets/card-wec.png" alt=""></div>
+      <div class="card-text">
+        <div class="meta"><b>WEC</b><span>4h</span></div>
+        <p class="card-title">WEC Barcelona: Toyota scores dominant 1-2 to seal</p>
+      </div>
+    </article>`;
+  for (const id of ["cat-a", "cat-b"]) document.getElementById(id).innerHTML = Array.from({ length: 7 }, card).join("");
+  document.getElementById("chips").innerHTML = Array.from({ length: 10 }, () => `<span class="chip">Text</span>`).join("");
+</script>
+</body>
+</html>
